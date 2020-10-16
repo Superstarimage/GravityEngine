@@ -1,0 +1,307 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\GDxTexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\GDxTextureLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GDxInclude.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\GDxPreInclude.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\GDxRendererFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\GDxRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\GDxFloat4x4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\GDxFloat4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\GDxMaterial.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\GDxFilmboxManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\GDxGeometryGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\GDxMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\GDxMeshData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\GDxSceneObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\GDxSubmesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\GDxVertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\GDxUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\d3dx12.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\GDxFrameResource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\GDxInputLayout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\GDxRtv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\GDxCubeRtv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\GDxDescriptorHeap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\GDxRtvHeap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\GDxShaderManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\GDxStaticVIBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\GDxVertexIndexBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\GDxUploadBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\GDxMathHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\imgui\imgui_impl_dx12.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\imgui\imgui_impl_win32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\GDxImgui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\GDxGpuProfiler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\GDxReadbackBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\GDxUav.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\GDxCascadedShadowMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxTextureLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxRendererFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxFloat4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxFloat4x4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxMaterial.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxFilmboxManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxGeometryGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxMeshData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxSceneObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxSubmesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxVertex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxFrameResource.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxRtv.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxCubeRtv.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxDescriptorHeap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxRtvHeap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxShaderManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxStaticVIBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxVertexIndexBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxUploadBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxMathHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\imgui\imgui_impl_dx12.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\imgui\imgui_impl_win32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxImgui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxGpuProfiler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxReadbackBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxUav.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GDxCascadedShadowMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\AnimationDefaultVS.hlsl" />
+    <FxCompile Include="Shaders\InstancedDefaultVS.hlsl" />
+    <FxCompile Include="Shaders\DeferredPS.hlsl" />
+    <FxCompile Include="Shaders\DefaultVS.hlsl" />
+    <FxCompile Include="Shaders\ScreenVS.hlsl" />
+    <FxCompile Include="Shaders\GBufferDebugPS.hlsl" />
+    <FxCompile Include="Shaders\ScreenQuadVS.hlsl" />
+    <FxCompile Include="Shaders\AmbientPassPS.hlsl" />
+    <FxCompile Include="Shaders\FullScreenVS.hlsl" />
+    <FxCompile Include="Shaders\DirectLightPassPS.hlsl" />
+    <FxCompile Include="Shaders\PrefilterCubemapPS.hlsl" />
+    <FxCompile Include="Shaders\IrradianceCubemapPS.hlsl" />
+    <FxCompile Include="Shaders\SkyPS.hlsl" />
+    <FxCompile Include="Shaders\SkyVS.hlsl" />
+    <FxCompile Include="Shaders\TaaPassPS.hlsl" />
+    <FxCompile Include="Shaders\UnjitteredFullScreenVS.hlsl" />
+    <FxCompile Include="Shaders\MotionBlurPassPS.hlsl" />
+    <FxCompile Include="Shaders\TiledDeferredCS.hlsl" />
+    <FxCompile Include="Shaders\ClusteredDeferredCS.hlsl" />
+    <FxCompile Include="Shaders\LightPassPS.hlsl" />
+    <FxCompile Include="Shaders\DepthDownsampleCS.hlsl" />
+    <FxCompile Include="Shaders\SdfDebugPS.hlsl" />
+    <FxCompile Include="Shaders\ScreenSpaceShadowPS.hlsl" />
+    <FxCompile Include="Shaders\ShadowMapPS.hlsl" />
+    <FxCompile Include="Shaders\ShadowMapVS.hlsl" />
+    <FxCompile Include="Shaders\SSShadowTemporalPS.hlsl" />
+    <FxCompile Include="Shaders\SdfTileCS.hlsl" />
+    <FxCompile Include="Shaders\ShadowMapPrefilterCS.hlsl" />
+    <FxCompile Include="Shaders\NeighborMax.hlsl" />
+    <FxCompile Include="Shaders\MotionBlurVdPackingPS.hlsl" />
+    <FxCompile Include="Shaders\MotionBlurSecondThirdTileMaxPS.hlsl" />
+    <FxCompile Include="Shaders\MotionBlurFirstTileMaxPS.hlsl" />
+    <FxCompile Include="Shaders\MotionBlurFourthTileMaxPS.hlsl" />
+    <FxCompile Include="Shaders\MotionBlurNeighborMaxPS.hlsl" />
+    <FxCompile Include="Shaders\BloomPrefilterPS.hlsl" />
+    <FxCompile Include="Shaders\BloomCombinePS.hlsl" />
+    <FxCompile Include="Shaders\BloomDownsamplePS.hlsl" />
+    <FxCompile Include="Shaders\BloomUpsamplePS.hlsl" />
+    <FxCompile Include="Shaders\OutputPS.hlsl" />
+    <FxCompile Include="Shaders\GtaoPS.hlsl" />
+    <FxCompile Include="Shaders\GtaoUpsamplePS.hlsl" />
+    <FxCompile Include="Shaders\GtaoBilateralXPS.hlsl" />
+    <FxCompile Include="Shaders\GtaoBilateralYPS.hlsl" />
+    <FxCompile Include="Shaders\GtaoTemporalPS.hlsl" />
+    <FxCompile Include="Shaders\SsrHizPS.hlsl" />
+    <FxCompile Include="Shaders\SsrTracePS.hlsl" />
+    <FxCompile Include="Shaders\SsrResolvePS.hlsl" />
+    <FxCompile Include="Shaders\SsrTemporalPS.hlsl" />
+    <FxCompile Include="Shaders\SsrCombinePS.hlsl" />
+    <FxCompile Include="Shaders\SsrPrefilterPS.hlsl" />
+    <FxCompile Include="Shaders\SsrDepthUnjitterPS.hlsl" />
+    <FxCompile Include="Shaders\DofCocPS.hlsl" />
+    <FxCompile Include="Shaders\DofBokehPS.hlsl" />
+    <FxCompile Include="Shaders\DofCombinePS.hlsl" />
+    <FxCompile Include="Shaders\DofPostfilterPS.hlsl" />
+    <FxCompile Include="Shaders\DofPrefilterPS.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\Lighting.hlsli" />
+    <None Include="packages.config" />
+    <None Include="Shaders\Material.hlsli" />
+    <None Include="Shaders\ObjectCB.hlsli" />
+    <None Include="Shaders\MainPassCB.hlsli" />
+    <None Include="Shaders\SkyPassCB.hlsli" />
+    <None Include="Shaders\HaltonSequence.hlsli" />
+    <None Include="Shaders\ShaderDefinition.h">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="Shaders\SdfDescriptors.hlsli" />
+    <None Include="Shaders\ShaderUtil.hlsli" />
+    <None Include="Shaders\StaticSamplers.hlsli" />
+  </ItemGroup>
+</Project>

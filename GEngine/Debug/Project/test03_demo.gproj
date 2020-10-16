@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="17">
+<Project class_id="0" tracking_level="0" version="0">
+	<mSkyCubemapUniqueName>Content\Textures\Cubemap\sunsetcube1024.dds</mSkyCubemapUniqueName>
+	<mTextureInfo class_id="1" tracking_level="0" version="0">
+		<count>100</count>
+		<item_version>0</item_version>
+		<item class_id="2" tracking_level="0" version="0">
+			<UniqueFileName>Content\Models\Rifle_1\Rifle_1_Albedo.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
+		</item>
+		... ...
+	</mTextureInfo>
+	<mSceneObjectInfo class_id="3" tracking_level="0" version="0">
+		<count>5</count>
+		<item_version>0</item_version>
+		<item class_id="4" tracking_level="0" version="0">
+			<UniqueName>Plane</UniqueName>
+			<OverrideMaterialUniqueName class_id="5" tracking_level="0" version="0">
+				... ... 
+			</OverrideMaterialUniqueName>
+			<MeshUniqueName>Grid</MeshUniqueName>
+			<Location>
+				... ...
+			</Location>
+			<Rotation>
+				... ...
+			</Rotation>
+			<Scale>
+				... ... 
+			</Scale>
+		</item>
+		... ...
+	</mSceneObjectInfo>
+	<mMeshInfo class_id="7" tracking_level="0" version="0">
+		<count>18</count>
+		<item_version>0</item_version>
+		<item class_id="8" tracking_level="0" version="0">
+			<MeshUniqueName>Box</MeshUniqueName>
+			<MaterialUniqueName>
+				<count>1</count>
+				<item_version>0</item_version>
+				<item>
+					<str1>Box</str1>
+					<str2>Default</str2>
+				</item>
+			</MaterialUniqueName>
+			<SdfResolution>32</SdfResolution>
+			<Sdf>
+				<count>1</count>
+				<item_version>0</item_version>
+				<item>-1.000000000e+00</item>
+			</Sdf>
+		</item>
+		... ...
+	</mMeshInfo>
+</Project>
+</boost_serialization>
+

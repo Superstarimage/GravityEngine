@@ -1,0 +1,17 @@
+#pragma once
+#include "Public/GDxPreInclude.h"
+
+#include "Public/GDxTextureLoader.h"
+#include "Public/GDxRendererFactory.h"
+//#include "Public/GDxRenderer.h"
+#include "Public/GDxFloat4x4.h"
+#include "Public/GDxFloat4.h"
+#include "Public/GDxMaterial.h"
+#include "Public/GDxVertex.h"
+#include "Public/GDxMeshData.h"
+#include "Public/GDxSubmesh.h"
+#include "Public/GDxMesh.h"
+#include "Public/GDxSceneObject.h"
+#include "Public/GDxGeometryGenerator.h"
+#include "Public/GDxFilmboxManager.h"
+#include "Public/GDxImgui.h"
