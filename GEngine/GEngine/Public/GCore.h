@@ -125,6 +125,8 @@ private:
 	bool      mResizing = false;   // are the resize bars being dragged?
 	bool      mFullscreenState = false;// fullscreen enabled
 
+	bool	  mboolSceneLoad = false;  // 载入场景开关；场景是否已导入 modified by Ssi
+
 	std::wstring WorkDirectory;
 
 	std::wstring EngineDirectory;

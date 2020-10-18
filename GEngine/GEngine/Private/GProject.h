@@ -209,6 +209,7 @@ public:
 
 	}
 
+	// 根据场景文件.gproj（描述）载入场景
 	void LoadProject(std::wstring filename)
 	{
 		std::ifstream ifs;

@@ -130,7 +130,7 @@
             </Grid>
             <Grid Height="60" VerticalAlignment="Top" Background="#FF323232">
                 <Grid Margin="1.5,1.5,1.5,0.75" Background="#FF252525">
-                    <Button x:Name="Play" Content="Play" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="74" Click="Button_Click" Height="34"/>
+                    <Button x:Name="Play" Content="Play" HorizontalAlignment="Center" Margin="10,10,0,0" VerticalAlignment="Top" Width="74" Click="Button_Click" Height="34"/>
                 </Grid>
             </Grid>
 

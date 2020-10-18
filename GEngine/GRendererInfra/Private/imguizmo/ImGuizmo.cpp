@@ -760,6 +760,7 @@ namespace ImGuizmo
       return gContext.mbUsing||gContext.mbUsingBounds;
    }
 
+   // ImGuizmo::IsOver() return true if mouse cursor is over any gizmo control (axis, plan or screen component)
    bool IsOver()
    {
       return (GetMoveType(NULL) != NONE) || GetRotateType() != NONE || GetScaleType() != NONE || IsUsing();

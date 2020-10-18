@@ -177,6 +177,7 @@ void GCore::Update()
 	mRenderer->Update(mTimer.get());
 }
 
+// WPF+Winform GUI运行后执行的消息循环
 void GCore::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 
@@ -192,11 +193,13 @@ void GCore::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) == WA_INACTIVE)
 		{
+			// 用于帧率计算
 			mAppPaused = true;
 			mTimer->Stop();
 		}
 		else
 		{
+			// 用于帧率计算
 			mAppPaused = false;
 			mTimer->Start();
 		}
@@ -365,10 +368,13 @@ void GCore::OnMouseDown(WPARAM btnState, int x, int y)
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
 
+	// 对被点击的窗口设置鼠标捕获，此后所有的鼠标事件都将针对该窗口
 	SetCapture(mRenderer->MainWnd());
 
+	// ImGuizmo::IsOver() return true if mouse cursor is over any gizmo control (axis, plan or screen component)
+
 #ifdef USE_IMGUI
-	if ((btnState & MK_LBUTTON) != 0 && !ImGuizmo::IsOver())
+	if ((btnState & MK_LBUTTON) != 0 && mboolSceneLoad == true && !ImGuizmo::IsOver())
 #else
 	if ((btnState & MK_LBUTTON) != 0)
 #endif
@@ -385,6 +391,7 @@ void GCore::OnMouseDown(WPARAM btnState, int x, int y)
 
 void GCore::OnMouseUp(WPARAM btnState, int x, int y)
 {
+	// 对已经点击的窗口释放鼠标捕获，恢复通常的鼠标输入处理
 	ReleaseCapture();
 
 	// Show mouse cursor.
@@ -737,6 +744,8 @@ void GCore::LoadMeshes()
 
 void GCore::LoadSceneObjects()
 {
+	mboolSceneLoad = true; // 载入场景标识开关打开
+
 	mSceneObjectIndex = 0;
 
 	// Create screen quads for light pass and post process.

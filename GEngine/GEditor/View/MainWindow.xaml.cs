@@ -49,7 +49,7 @@ namespace GEditor
             InitializeComponent();
             //viewport.TopLevel = false;
             viewport.BorderStyle = BorderStyle.None;
-            viewportHost.Child = viewport;
+            viewportHost.Child = viewport; // 指定Winform窗口作为渲染窗口
             FileBrowserPanel.Children.Add(fileBrowser);
             fileBrowser.SetMainWindow(this);
             OutlinerPanel.Children.Add(outliner);
@@ -103,8 +103,10 @@ namespace GEditor
                 // Open document 
                 string filename = dlg.FileName;
 
-                mProjectName = System.IO.Path.GetFileNameWithoutExtension(filename);
+                // 获取无扩展名的文件名
+                mProjectName = System.IO.Path.GetFileNameWithoutExtension(filename); 
 
+                // 先获取文件所在目录，再设置工作目录
                 fileBrowser.SetWorkDirectory(System.IO.Path.GetDirectoryName(filename) + @"\");
                 fileBrowser.LoadBrowser();
 
@@ -113,7 +115,7 @@ namespace GEditor
                 IntPtr hwnd = viewport.Handle;
                 double h = viewport.Height;
                 double w = viewport.Width;
-                IGCore.InitD3D(hwnd, w, h);
+                IGCore.InitD3D(hwnd, w, h); // 初始化D3D
 
                 IGCore.SetSelectSceneObjectCallback(SelectSceneObject);
                 IGCore.SetRefreshSceneObjectTransformCallback(RefreshTransform);
