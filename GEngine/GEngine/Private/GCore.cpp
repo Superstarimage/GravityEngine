@@ -117,10 +117,10 @@ void GCore::Initialize(HWND OutputWindow, double width, double height)
 		{
 			try
 			{
+				// 预初始化（初始化D3D对象、创建渲染器工厂对象、创建BFX管理器、初始化OnResize代码、重置命令队列）
+				mRenderer->PreInitialize(OutputWindow, width, height); 
 
-				mRenderer->PreInitialize(OutputWindow, width, height);
-
-				LoadProject();
+				LoadProject(); // 载入场景
 
 				pRendererFactory = mRenderer->GetFactory();
 				CreateImgui();
@@ -1236,22 +1236,26 @@ void GCore::SetTextureSrgb(wchar_t* txtName, bool bSrgb)
 	mRenderer->RegisterTexture(mTextures[textureName].get());
 }
 
+// 设置工作目录，获取并设置引擎的工作目录
 void GCore::SetWorkDirectory(wchar_t* dir)
 {
 	std::wstring path(dir);
 	WorkDirectory = path;
 
 	TCHAR exeFullPath[MAX_PATH];
-	memset(exeFullPath, 0, MAX_PATH);
+	memset(exeFullPath, 0, MAX_PATH); // 内存初始化：将exeFullPath后面的MAX_PATH个字节用0替换并返回exeFullPath
 
-	GetModuleFileName(NULL, exeFullPath, MAX_PATH);
-	WCHAR *p = wcsrchr(exeFullPath, '\\');
+	// 获取当前进程已加载模块文件的完整路径
+	// 参数说明：模块句柄：如果为NULL，该函数返回应用程序的全路径；字符串缓冲区；装载到缓冲区的最大字符数量
+	GetModuleFileName(NULL, exeFullPath, MAX_PATH); 
+	WCHAR *p = wcsrchr(exeFullPath, '\\'); // 从一个字符串中寻找某个字符最后出现的位置
 	*p = 0x00;
 
-	EngineDirectory = std::wstring(exeFullPath);
+	EngineDirectory = std::wstring(exeFullPath); // 设置引擎工作目录
 	EngineDirectory += L"\\";
 }
 
+// 设置项目名字
 void GCore::SetProjectName(wchar_t* projName)
 {
 	std::wstring pjName(projName);
@@ -1269,7 +1273,7 @@ void GCore::SaveProject()
 
 void GCore::LoadProject()
 {
-	mProject->LoadProject(WorkDirectory + ProjectName + L".gproj");
+	mProject->LoadProject(WorkDirectory + ProjectName + L".gproj"); // 根据OpenProject的结果加载项目
 }
 
 void GCore::CreateMaterial(wchar_t* cUniqueName)

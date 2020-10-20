@@ -111,31 +111,31 @@ public:
 	{
 		mSkyCubemapUniqueName = skyCubemapUniqueName;
 
-		mTextureInfo.clear();
+		mTextureInfo.clear(); // 清空场景对象的材质列表
 
 		for (auto it = pTextures.begin(); it != pTextures.end(); it++)
 		{
 			GProjectTextureInfo tInfo;
-			tInfo.UniqueFileName = (*it).second->UniqueFileName;
+			tInfo.UniqueFileName = (*it).second->UniqueFileName; // first -> key value; second -> mapped value
 			tInfo.bSrgb = (*it).second->bSrgb;
 			mTextureInfo.push_back(tInfo);
 		}
 
-		mSceneObjectInfo.clear();
+		mSceneObjectInfo.clear(); // 清空场景对象的物体信息列表
 
 		for (auto i = 0u; i < pSceneObjects.size(); i++)
 		{
 			GProjectSceneObjectInfo soInfo;
-			soInfo.UniqueName = pSceneObjects[i]->UniqueName;
+			soInfo.UniqueName = pSceneObjects[i]->UniqueName; // 物体Unique名称，UniqueName是哈希表查找的唯一名称
 			soInfo.MeshUniqueName = pSceneObjects[i]->GetMesh()->UniqueName;
 			//soInfo.MaterialUniqueName = pSceneObjects[i]->GetMaterial()->UniqueName;
-			soInfo.OverrideMaterialUniqueName.clear();
-			auto ovrdMatNames = pSceneObjects[i]->GetOverrideMaterialNames();
+			soInfo.OverrideMaterialUniqueName.clear(); // 清空材质名称列表
+			auto ovrdMatNames = pSceneObjects[i]->GetOverrideMaterialNames(); // 获取场景物体身上的多个材质哈希name map<name, UniqueName>
 			for (auto pair : ovrdMatNames) // 可能有多对材质，所以循环处理
 			{
 				GStrPair pr;
 				pr.str1 = pair.first; // 项目中材质的名称（为了与项目中其他材质做区分）
-				pr.str2 = pair.second;// 本地文件中材质的名称
+				pr.str2 = pair.second;// 材质的UniqueName，用于查找哈希表
 				soInfo.OverrideMaterialUniqueName.push_back(pr);
 			}
 			std::vector<float> loc = pSceneObjects[i]->GetLocation();
@@ -153,32 +153,32 @@ public:
 			mSceneObjectInfo.push_back(soInfo);
 		}
 
-		mMeshInfo.clear();
+		mMeshInfo.clear(); // 清空网格信息对象的列表，Mesh可以理解为场景中的模型，它带有网格、材质和SDF
 
-		for (auto it = pMeshes.begin(); it != pMeshes.end(); it++) // 模型+材质+SDF
+		for (auto it = pMeshes.begin(); it != pMeshes.end(); it++) // 模型 + 子模型材质 + SDF + SDF Resolution
 		{
 			GProjectMeshInfo mInfo;
 			mInfo.MeshUniqueName = (*it).second->UniqueName;
-			mInfo.MaterialUniqueName.clear();
+			mInfo.MaterialUniqueName.clear(); // 清空材质列表
 			for (auto& submesh : (*it).second->Submeshes)
 			{
 				GStrPair pr;
-				pr.str1 = submesh.first;
-				pr.str2 = submesh.second.GetMaterial()->UniqueName;
+				pr.str1 = submesh.first; // 子Mesh名称
+				pr.str2 = submesh.second.GetMaterial()->UniqueName; // 子Mesh上的材质名称
 				mInfo.MaterialUniqueName.push_back(pr);
 
 				//mInfo.MaterialUniqueName[submesh.first] = submesh.second.GetMaterial()->UniqueName;
 			}
 
-			auto pSdf = (*it).second->GetSdf();
+			auto pSdf = (*it).second->GetSdf(); // 一个float类型的vector，不过是用智能指针shared_ptr创建的，不必操心delete
 			if (pSdf != nullptr)
 			{
-				auto pSdfData = pSdf->data();
+				auto pSdfData = pSdf->data(); // 返回vector所指数组内存的第一个元素的指针
 				auto SdfSize = (int)pSdf->size();
-				mInfo.Sdf.clear();
+				mInfo.Sdf.clear(); // 清空sdf列表
 				for (int i = 0; i < SdfSize; i++)
 				{
-					mInfo.Sdf.push_back(pSdfData[i]);
+					mInfo.Sdf.push_back(pSdfData[i]); // 数组拷贝
 				}
 			}
 			else
@@ -192,19 +192,19 @@ public:
 			mMeshInfo.push_back(mInfo);
 		}
 
-		std::ofstream ofs;
+		std::ofstream ofs;  // 建立输出文件流对象
 		//ofs.open(filename, std::ios_base::out | std::ios_base::binary);
-		ofs.open(filename);
-		if (ofs.good()) 
+		ofs.open(filename); // 根据文件路径打开文件
+		if (ofs.good())		// 检查文件是否打开成功（是否有逻辑、读写等错误）
 		{
 			{
 				//boost::archive::binary_woarchive oa(ofs);
-				boost::archive::xml_oarchive oa(ofs);
+				boost::archive::xml_oarchive oa(ofs); // 创建文件输出归档类，根据ostream ofs来构造
 				//boost::archive::text_oarchive oa(ofs);
 
-				oa << boost::serialization::make_nvp("Project", *this);
+				oa << boost::serialization::make_nvp("Project", *this); // 保存当前类对象
 			}     
-			ofs.close(); 
+			ofs.close(); // 关闭文件
 		}
 
 	}
@@ -212,9 +212,9 @@ public:
 	// 根据场景文件.gproj（描述）载入场景
 	void LoadProject(std::wstring filename)
 	{
-		std::ifstream ifs;
-		ifs.open(filename);
-		if (ifs.good()) {
+		std::ifstream ifs;  // 建立输入文件流对象
+		ifs.open(filename); // 根据文件路径打开文件
+		if (ifs.good()) {   // 检查文件是否打开成功（1. 输入操作符是否到达文件末尾；2. 是否有逻辑、读写等错误）
 			{
 				try
 				{
@@ -243,14 +243,16 @@ public:
 					return;
 				}
 			} 
-			ifs.close(); 
+			ifs.close(); // 把ifs相关联的文件关闭
 		}
 	}
 
 private:
 
+	// 为了能让串行化类库有权限访问私有成员，所以要声明一个友元类
 	friend class boost::serialization::access;
 
+	// 串行化的函数，这个函数完成对象的保存与恢复
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{

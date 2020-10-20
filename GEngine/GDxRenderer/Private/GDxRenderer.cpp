@@ -93,32 +93,33 @@ bool GDxRenderer::InitDirect3D()
 	//assert(m4xMsaaQuality > 0 && "Unexpected MSAA quality level.");
 
 #ifdef _DEBUG
-	LogAdapters();
+	LogAdapters(); // 打印显卡设备信息
 #endif
 
-	CreateCommandObjects();
-	CreateSwapChain();
-	CreateRtvAndDsvDescriptorHeaps();
+	CreateCommandObjects();           // 创建命令对象（命令队列、命令分配器、命令列表）
+	CreateSwapChain();		          // 创建交换链
+	CreateRtvAndDsvDescriptorHeaps(); // 创建RTV和DSV描述符堆
 
 	return true;
 }
 
+// 预初始化
 void GDxRenderer::PreInitialize(HWND OutputWindow, double width, double height)
 {
 	mhMainWnd = OutputWindow;
 	mClientWidth = (int)width;
 	mClientHeight = (int)height;
 
-	if (!InitDirect3D())
+	if (!InitDirect3D())     // 初始化D3D对象
 		return;
 
-	CreateRendererFactory();
-	CreateFilmboxManager();
+	CreateRendererFactory(); // 创建渲染器工厂对象（含创建贴图、创建贴图导入器、创建材质、创建网格、创建几何生成器、创建场景物体、创建Imgui对象等成员函数）
+	CreateFilmboxManager();  // 创建FBX管理器
 
 	// Do the initial resize code.
 	OnResize();
 
-	ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
+	ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr)); // 重置命令队列，目的是重复利用资源
 }
 
 void GDxRenderer::Initialize()
@@ -2652,10 +2653,10 @@ void GDxRenderer::OnResize()
 	dsv_desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 	dsv_desc.Texture2D.MipSlice = 0;
 
-	D3D12_CLEAR_VALUE optClear;
+	D3D12_CLEAR_VALUE optClear; // 设置清除资源的优化值，提高清楚操作的执行速度
 	optClear.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT; //DXGI_FORMAT_D24_UNORM_S8_UINT;
-	optClear.DepthStencil.Depth = 1.0f;
-	optClear.DepthStencil.Stencil = 0;
+	optClear.DepthStencil.Depth = 1.0f; // 初始深度值为1
+	optClear.DepthStencil.Stencil = 0;  // 初始模板值为0
 	ThrowIfFailed(md3dDevice->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
@@ -2725,6 +2726,7 @@ void GDxRenderer::OnResize()
 		}
 	}
 
+	// UAV，unordered access view 无序访问视图，是无序访问资源的视图（缓冲区、纹理、纹理数组），可通过多个线程临时进行无序读/写访问
 	for (auto &uav : mUavs)
 	{
 		if (uav.second->ResourceNotNull())
@@ -7345,12 +7347,14 @@ void GDxRenderer::SaveBakedCubemap(std::wstring workDir, std::wstring CubemapPat
 }
 */
 
+// 创建渲染器工厂对象（含创建贴图、创建贴图导入器、创建材质、创建网格、创建几何生成器、创建场景物体、创建Imgui对象等成员函数）
 void GDxRenderer::CreateRendererFactory()
 {
 	GDxRendererFactory fac(md3dDevice.Get(), mCommandList.Get(), mCommandQueue.Get());
-	mFactory = std::make_unique<GDxRendererFactory>(fac);
+	mFactory = std::make_unique<GDxRendererFactory>(fac); // 用make_unique智能指针形式创建RendererFactory对象，而非new；无需delete，更安全
 }
 
+// 创建FBX管理器
 void GDxRenderer::CreateFilmboxManager()
 {
 	mFilmboxManager = std::make_unique<GDxFilmboxManager>();
@@ -7529,6 +7533,7 @@ void GDxRenderer::RegisterTexture(GRiTexture* text)
 	}
 }
 
+// 选中场景中的物体
 GRiSceneObject* GDxRenderer::SelectSceneObject(int sx, int sy)
 {
 	GGiFloat4x4 P = pCamera->GetProj();
@@ -7540,7 +7545,7 @@ GRiSceneObject* GDxRenderer::SelectSceneObject(int sx, int sy)
 	// Ray definition in view space.
 	XMVECTOR viewRayOrigin = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 	XMVECTOR viewRayDir = XMVectorSet(vx, vy, 1.0f, 0.0f);
-
+			 
 	XMMATRIX dxView = GDx::GGiToDxMatrix(pCamera->GetView());
 	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(dxView), dxView);
 

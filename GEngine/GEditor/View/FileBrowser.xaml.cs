@@ -219,7 +219,7 @@ namespace GEditor.View
         
         public void LoadBrowser()
         {
-            String ContentFolder = workDirectory + @"Content\";
+            String ContentFolder = workDirectory + @"Content\"; // Content文件路径
             if (ContentFolder == null)
             {
                 MessageBox.Show("ContentFolder is null");
@@ -247,16 +247,17 @@ namespace GEditor.View
         {
             List<BrowserTreeViewItemModel> children = new List<BrowserTreeViewItemModel>();
             
-            foreach (var path in Directory.GetDirectories(FilePath))
+            foreach (var path in Directory.GetDirectories(FilePath)) // 返回指定目录中子目录的路径，return String[]
             {
 
                 // if @path is a folder
-                if (Directory.Exists(@path))
+                if (Directory.Exists(@path)) // 判断指定的文件夹是否存在
                 {
-                    DirectoryInfo dir = new DirectoryInfo(path);
+                    DirectoryInfo dir = new DirectoryInfo(path); // 用于描述一个文件夹对象
 
                     // if this directory is not readonly or hidden
-                    if (FileAttributes.Directory == dir.Attributes || dir.Attributes.ToString().Equals("ReadOnly, Directory"))
+                    // FileAttributes.Direcory表示文件是一个目录
+                    if (FileAttributes.Directory == dir.Attributes || dir.Attributes.ToString().Equals("ReadOnly, Directory")) // 该文件为目录且只读
                     {
                         BrowserTreeViewItemModel model = new BrowserTreeViewItemModel();
                         model.Text = dir.Name;
@@ -269,10 +270,10 @@ namespace GEditor.View
 
             }
 
-            foreach (var path in Directory.GetFiles(FilePath))
+            foreach (var path in Directory.GetFiles(FilePath)) // 返回指定目录中子文件的路径，return String[]
             {
                 // file
-                if (File.Exists(@path))
+                if (File.Exists(@path)) // 判断指定文件是否存在
                 {
 
                     FileInfo file = new FileInfo(@path);

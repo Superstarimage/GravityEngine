@@ -81,9 +81,9 @@ protected:
 	int mClientWidth = 800;
 	int mClientHeight = 600;
 
-	std::unique_ptr<GRiRendererFactory> mFactory;
+	std::unique_ptr<GRiRendererFactory> mFactory;		// 渲染工厂
 
-	std::unique_ptr<GRiFilmboxManager> mFilmboxManager;
+	std::unique_ptr<GRiFilmboxManager> mFilmboxManager; // FBX管理器
 
 	UINT mPrefilterLevels = 5u;
 

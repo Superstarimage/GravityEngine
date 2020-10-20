@@ -13,7 +13,7 @@ GDxUav::~GDxUav()
 {
 }
 */
-
+// UAV，unordered access view 无序访问视图，是无序访问资源的视图（缓冲区、纹理、纹理数组），可通过多个线程临时进行无序读/写访问
 GDxUav::GDxUav(ID3D12Device* device, UINT ClientWidth, UINT ClientHeight,
 	CD3DX12_CPU_DESCRIPTOR_HANDLE cpuSrv,
 	CD3DX12_GPU_DESCRIPTOR_HANDLE gpuSrv,
@@ -86,7 +86,7 @@ void GDxUav::BuildDescriptors()
 
 		md3dDevice->CreateUnorderedAccessView(mResource.Get(), nullptr, &uavDesc, mCpuUav);
 
-		// Create SRV.
+		// Create SRV. SRV, Shader resourve view 着色器资源视图
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc;
 
 		ZeroMemory(&srvDesc, sizeof(srvDesc));
@@ -129,7 +129,7 @@ void GDxUav::BuildDescriptors()
 
 		md3dDevice->CreateUnorderedAccessView(mResource.Get(), nullptr, &uavDesc, mCpuUav);
 
-		// Create SRV.
+		// Create SRV. SRV, Shader resourve view 着色器资源视图
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc;
 
 		ZeroMemory(&srvDesc, sizeof(srvDesc));

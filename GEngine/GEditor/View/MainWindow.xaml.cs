@@ -85,6 +85,7 @@ namespace GEditor
             return IntPtr.Zero;
         }
 
+        // 打开场景资源文件并初始化D3D
         private void OpenProject(object sender, RoutedEventArgs e)
         {
             // Create OpenFileDialog 
@@ -95,27 +96,31 @@ namespace GEditor
             dlg.Filter = "GE Project Files (*.gproj)|*.gproj";
 
             // Display OpenFileDialog by calling ShowDialog method 
-            Nullable<bool> result = dlg.ShowDialog();
+            Nullable<bool> result = dlg.ShowDialog(); // 用户点击确定按钮，返回true；否则返回false
 
             // Get the selected file name and display in a TextBox 
             if (result == true)
             {
                 // Open document 
-                string filename = dlg.FileName;
+                string filename = dlg.FileName; // 完整的路径
+
+                // 控制台打印输出（项目->属性->输出类型：控制台应用程序）
+                // Console.WriteLine(filename);
 
                 // 获取无扩展名的文件名
                 mProjectName = System.IO.Path.GetFileNameWithoutExtension(filename); 
 
                 // 先获取文件所在目录，再设置工作目录
-                fileBrowser.SetWorkDirectory(System.IO.Path.GetDirectoryName(filename) + @"\");
-                fileBrowser.LoadBrowser();
+                fileBrowser.SetWorkDirectory(System.IO.Path.GetDirectoryName(filename) + @"\"); // @表示让转义字符\保持原义，不要转义
+                fileBrowser.LoadBrowser(); // 根据路径将文件夹、文件信息注入树形结构模型（children、Icon、text、path、isFolder）
 
-                IGCore.SetWorkDirectory(System.IO.Path.GetDirectoryName(filename) + @"\");
+                // 设置工作目录
+                IGCore.SetWorkDirectory(System.IO.Path.GetDirectoryName(filename) + @"\"); 
                 IGCore.SetProjectName(System.IO.Path.GetFileNameWithoutExtension(filename));
-                IntPtr hwnd = viewport.Handle;
+                IntPtr hwnd = viewport.Handle; // Winform窗口Viewport的窗口句柄
                 double h = viewport.Height;
                 double w = viewport.Width;
-                IGCore.InitD3D(hwnd, w, h); // 初始化D3D
+                IGCore.InitD3D(hwnd, w, h); // 初始化D3D，相当于直接调用了GCore.cpp中的Initialize()
 
                 IGCore.SetSelectSceneObjectCallback(SelectSceneObject);
                 IGCore.SetRefreshSceneObjectTransformCallback(RefreshTransform);

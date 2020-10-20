@@ -129,9 +129,9 @@ private:
 
 	std::wstring WorkDirectory;
 
-	std::wstring EngineDirectory;
+	std::wstring EngineDirectory; // 引擎工作目录
 
-	std::wstring ProjectName;
+	std::wstring ProjectName;	  // 项目名字
 
 	GRiRenderer* mRenderer;
 

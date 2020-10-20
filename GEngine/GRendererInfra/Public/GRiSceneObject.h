@@ -76,13 +76,13 @@ protected:
 
 	//GRiMaterial* Mat = nullptr;
 
-	std::unordered_map<std::wstring, GRiMaterial*> pOverrideMaterial;
+	std::unordered_map<std::wstring, GRiMaterial*> pOverrideMaterial; // 场景物体上可能有多个材质
 
 	GRiMesh* Mesh;
 
 	GGiFloat4x4 TexTransform;
 
-	CullState mCullState = Visible;
+	CullState mCullState = Visible; // 剔除状态
 
 	bool bTransformDirty = true;
 
