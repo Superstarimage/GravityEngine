@@ -10,6 +10,7 @@
 #include "GRiSceneObject.h"
 #include "GRiImgui.h"
 
+// 创建材质队形、创建材质加载器对象、创建材质对象、创建Mesh对象、创建几何体生成器对象、创建场景物体对象、创建Imgui对象
 class GRiRendererFactory
 {
 

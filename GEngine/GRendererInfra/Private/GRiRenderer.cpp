@@ -75,6 +75,7 @@ float GRiRenderer::AspectRatio() const
 	return static_cast<float>(mClientWidth) / mClientHeight;
 }
 
+// Í¬²½ÎÆÀíÌùÍ¼
 void GRiRenderer::SyncTextures(std::unordered_map<std::wstring, std::unique_ptr<GRiTexture>>& mTextures)
 {
 	pTextures.clear();

@@ -127,7 +127,7 @@ private:
 
 	bool	  mboolSceneLoad = false;  // 载入场景开关；场景是否已导入 modified by Ssi
 
-	std::wstring WorkDirectory;
+	std::wstring WorkDirectory;   // 工作目录
 
 	std::wstring EngineDirectory; // 引擎工作目录
 
@@ -135,14 +135,15 @@ private:
 
 	GRiRenderer* mRenderer;
 
-	GRiRendererFactory* pRendererFactory;
+	GRiRendererFactory* pRendererFactory; // 包含成员函数：创建材质队形、创建材质加载器对象、创建材质对象、创建Mesh对象、创建几何体生成器对象、创建场景物体对象、创建Imgui对象
+
 
 	std::unique_ptr<GGiGameTimer> mTimer;
 
-	std::unordered_map<std::wstring, std::unique_ptr<GRiTexture>> mTextures;
-	std::unordered_map<std::wstring, std::unique_ptr<GRiMaterial>> mMaterials;
-	std::unordered_map<std::wstring, std::unique_ptr<GRiMesh>> mMeshes;
-	std::unordered_map<std::wstring, std::unique_ptr<GRiSceneObject>> mSceneObjects;
+	std::unordered_map<std::wstring, std::unique_ptr<GRiTexture>> mTextures;         // 纹理
+	std::unordered_map<std::wstring, std::unique_ptr<GRiMaterial>> mMaterials;		 // 材质
+	std::unordered_map<std::wstring, std::unique_ptr<GRiMesh>> mMeshes;				 // 网格
+	std::unordered_map<std::wstring, std::unique_ptr<GRiSceneObject>> mSceneObjects; // 场景对象
 	std::vector<GRiSceneObject*> mSceneObjectLayer[(int)RenderLayer::Count];
 	std::unordered_map<std::wstring, std::unique_ptr<GMaterial>> mMaterialFiles;
 

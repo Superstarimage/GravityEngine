@@ -48,8 +48,8 @@ public:
 
 	virtual GRiSceneObject* SelectSceneObject(int sx, int sy) = 0;
 
-	std::unordered_map<std::wstring, GRiTexture*> pTextures;
-	std::unordered_map<std::wstring, GRiMaterial*> pMaterials;
+	std::unordered_map<std::wstring, GRiTexture*> pTextures;   // 加载后的纹理字典<纹理名，纹理对象>
+	std::unordered_map<std::wstring, GRiMaterial*> pMaterials; 
 	std::unordered_map<std::wstring, GRiMesh*> pMeshes;
 	std::unordered_map<std::wstring, GRiSceneObject*> pSceneObjects;
 	std::vector<GRiSceneObject*> pSceneObjectLayer[(int)RenderLayer::Count];

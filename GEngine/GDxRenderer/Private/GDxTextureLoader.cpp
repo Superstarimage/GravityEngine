@@ -14,18 +14,21 @@ GDxTextureLoader::GDxTextureLoader(ID3D12Device* device, ID3D12GraphicsCommandLi
 	pCommandQueue = cmdQueue;
 }
 
+// 加载纹理
 GRiTexture* GDxTextureLoader::LoadTexture(std::wstring workdir, std::wstring path, bool bSrgb)
 {
-	std::wstring lpath = path;
-	std::transform(lpath.begin(), lpath.end(), lpath.begin(), ::tolower);
-	std::wstring ext = GetExtension(lpath);
-	std::wstring filename = workdir + path;
-	std::wstring name = GetFileName(path);
+	std::wstring lpath = path; // 文件相对路径
 
-	GDxTexture* tex = new GDxTexture();
-	tex->UniqueFileName = path;
-	tex->Name = name;
-	tex->bSrgb = bSrgb;
+	// 把文件相对路径字符串转小写
+	std::transform(lpath.begin(), lpath.end(), lpath.begin(), ::tolower);
+	std::wstring ext = GetExtension(lpath); // 文件扩展名
+	std::wstring filename = workdir + path; // 文件绝对路径
+	std::wstring name = GetFileName(path);  // 文件名
+
+	GDxTexture* tex = new GDxTexture(); // 创建材质对象
+	tex->UniqueFileName = path;			// 文件相对路径
+	tex->Name = name;					// 文件名
+	tex->bSrgb = bSrgb;					// bSrgb
 
 	if (ext == L"dds")
 	{

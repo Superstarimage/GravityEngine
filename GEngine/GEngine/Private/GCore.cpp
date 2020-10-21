@@ -120,13 +120,14 @@ void GCore::Initialize(HWND OutputWindow, double width, double height)
 				// 预初始化（初始化D3D对象、创建渲染器工厂对象、创建BFX管理器、初始化OnResize代码、重置命令队列）
 				mRenderer->PreInitialize(OutputWindow, width, height); 
 
-				LoadProject(); // 载入场景
+				LoadProject(); // 载入场景（实际上是根据xml文件内容填充GProject对象，填充了之后有什么用呢？）
 
-				pRendererFactory = mRenderer->GetFactory();
-				CreateImgui();
-				LoadTextures();
-				mRenderer->SyncTextures(mTextures);
-				LoadMaterials();
+				// RendererFactory包含成员函数：创建材质队形、创建材质加载器对象、创建材质对象、创建Mesh对象、创建几何体生成器对象、创建场景物体对象、创建Imgui对象
+				pRendererFactory = mRenderer->GetFactory(); // 获取渲染工厂
+				CreateImgui();   // 创建Imgui 
+				LoadTextures();  // 导入纹理
+				mRenderer->SyncTextures(mTextures); // 同步纹理，将mTexture中数据转存到GRiRenderer.h中的pTextures（字典）中
+				LoadMaterials(); // 加载材质
 				mRenderer->SyncMaterials(mMaterials);
 				LoadMeshes();
 				mRenderer->SyncMeshes(mMeshes);
@@ -428,6 +429,7 @@ void GCore::CreateImgui()
 	mRenderer->SetImgui(mImgui.get());
 }
 
+// 导入纹理资源
 void GCore::LoadTextures()
 {
 	std::vector<std::wstring> format;
@@ -435,27 +437,31 @@ void GCore::LoadTextures()
 	format.emplace_back(L"png");
 	format.emplace_back(L"tga");
 	format.emplace_back(L"jpg");
-	std::vector<std::wstring> files = std::move(GetAllFilesInFolder(L"Content", true, format));
-	
-	std::unique_ptr<GRiTextureLoader> textureLoader(pRendererFactory->CreateTextureLoader());
 
-	for (auto file : files)
+	// 获取指定文件夹relPath中指定格式format的所有文件的相对路径，并存放到vector中
+	// move将右值变成左值，如果move右边是是个字符串变量，move操作后，字符串将为空
+	std::vector<std::wstring> files = std::move(GetAllFilesInFolder(L"Content", true, format)); 
+	
+	std::unique_ptr<GRiTextureLoader> textureLoader(pRendererFactory->CreateTextureLoader()); // 创建材质加载器
+
+	for (auto file : files) // 对于每一个材质文件
 	{
 		bool bSrgb = false;
-		for (auto texInfo : mProject->mTextureInfo)
+		for (auto texInfo : mProject->mTextureInfo) // 遍历场景类对象中的纹理信息列表（每个元素中包含uniquefilename和bsrgb）
 		{
-			if (file == texInfo.UniqueFileName)
+			if (file == texInfo.UniqueFileName) // 用实际读取到的材质文件查找场景档案中对应的材质文件
 			{
 				bSrgb = texInfo.bSrgb;
 				break;
 			}
 		}
-		GRiTexture* tex = textureLoader->LoadTexture(WorkDirectory, file, bSrgb);
-		std::wstring texName = tex->UniqueFileName;
+		GRiTexture* tex = textureLoader->LoadTexture(WorkDirectory, file, bSrgb); // 加载材质
+		std::wstring texName = tex->UniqueFileName; // 文件的相对路径
 		std::unique_ptr<GRiTexture> temp(tex);
 		mTextures[texName] = std::move(temp);
 	}
 
+	// 创建默认纹理
 	files.clear();
 	files.push_back(L"Resource\\Textures\\GE_Default_Albedo.png");
 	files.push_back(L"Resource\\Textures\\GE_Default_Normal.png");
@@ -477,8 +483,9 @@ void GCore::LoadTextures()
 	}
 
 	//
-	// Load sky cubemap.
+	// 加载天空立方体贴图 Load sky cubemap.
 	//
+	// 加载默认立方体贴图
 	mSkyCubemapUniqueName = mProject->mSkyCubemapUniqueName;
 	if (mSkyCubemapUniqueName.find(L"Resource") != 0 && mTextures.find(mSkyCubemapUniqueName) == mTextures.end())
 		mSkyCubemapUniqueName = GetDefaultSkyCubemapUniqueName();
@@ -493,6 +500,7 @@ void GCore::LoadTextures()
 	mTextures[texName] = std::move(temp);
 }
 
+// 加载材质资源
 void GCore::LoadMaterials()
 {
 	mMaterialIndex = 0;
@@ -1086,50 +1094,60 @@ void GCore::Pick(int sx, int sy)
 
 #pragma region Util
 
+// 获取指定文件夹relPath中指定格式的所有文件的相对路径
 std::vector<std::wstring> GCore::GetAllFilesInFolder(std::wstring relPath, bool bCheckFormat, std::vector<std::wstring> format)
 {
 	std::vector<std::wstring> files;
 	intptr_t hFile = 0;
-	struct _wfinddata_t fileinfo;
-	std::wstring fullPath = WorkDirectory + relPath;
+	struct _wfinddata_t fileinfo; // 存放文件信息
+	std::wstring fullPath = WorkDirectory + relPath; // 获取指定文件夹的完整目录
 	//relPath = WorkDirectory + relPath;
 	std::wstring p;
-	hFile = _wfindfirst(p.assign(fullPath).append(L"\\*").c_str(), &fileinfo);
+
+	// 查找目录中的文件，返回的文件信息存入fileinfo；查找成功将会返回用于_findnext和_findclse函数的值
+	// _findfirst(目标文件说明（可包含通配符），函数将会填入的文件/目录信息) assign：字符串赋值
+	hFile = _wfindfirst(p.assign(fullPath).append(L"\\*").c_str(), &fileinfo); 
 	if (hFile != -1)
 	{
 		do
 		{
-			if ((fileinfo.attrib &  _A_SUBDIR))
+			if ((fileinfo.attrib &  _A_SUBDIR)) // 文件是子目录
 			{
-				if (wcscmp(fileinfo.name, L".") != 0 && wcscmp(fileinfo.name, L"..") != 0)
+				// 排除两个目录：当前目录.以及上级目录..
+				if (wcscmp(fileinfo.name, L".") != 0 && wcscmp(fileinfo.name, L"..") != 0) // wcscmp 字符串比大小；若相等，返回零
 				{
+					// 递归获取子目录中的文件
 					std::vector<std::wstring> folderFiles = std::move(GetAllFilesInFolder(p.assign(relPath).append(L"\\").append(fileinfo.name), bCheckFormat, format));
+					// 在指定位置files.end()插入区间[begin, end)的所有元素
 					files.insert(files.end(), folderFiles.begin(), folderFiles.end());
 				}
 			}
-			else
+			else // 不是目录是文件
 			{
-				if (bCheckFormat)
+				if (bCheckFormat) // 检查文件后缀
 				{
 					bool isOfFormat = false;
 					std::wstring sFileName(fileinfo.name);
-					std::wstring lFileName = sFileName;
+					std::wstring lFileName = sFileName; // 文件路径名
+					// 字符串转小写
+					// transform: 在[begin, end)中应用给定的操作tolower，并将操作的结果存放到另一范围内lFileName.begin
 					std::transform(lFileName.begin(), lFileName.end(), lFileName.begin(), ::tolower);
-					for (auto f : format)
+					for (auto f : format) // 对于允许的每个文件类型
 					{
+						// find: 返回查找子串的首字符位置
 						if (lFileName.find(L"." + f) == (lFileName.length() - f.length() - 1))
 						{
-							isOfFormat = true;
+							isOfFormat = true; // 这里排除了什么情况呢？这里检查文件类型不精准
 							break;
 						}
 					}
-					if (isOfFormat)
-						files.push_back(p.assign(relPath).append(L"\\").append(fileinfo.name));
+					if (isOfFormat) // 将找到的文件以指定目录\\文件名的形式存到files中
+						files.push_back(p.assign(relPath).append(L"\\").append(fileinfo.name)); 
 				}
-				else
+				else // 不检查文件后缀
 					files.push_back(p.assign(relPath).append(L"\\").append(fileinfo.name));
 			}
- 		} while (_wfindnext(hFile, &fileinfo) == 0);
+ 		} while (_wfindnext(hFile, &fileinfo) == 0); // 根据hFile搜索句柄搜索，查找结果填入文件/目录信息fileinfo
 
 		_findclose(hFile);
 	}

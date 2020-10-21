@@ -229,7 +229,7 @@ namespace GEditor.View
             //browserTreeView.Items.Clear();
 
             List<BrowserTreeViewItemModel> root = new List<BrowserTreeViewItemModel>();
-
+            
             BrowserTreeViewItemModel content = new BrowserTreeViewItemModel();
             content.Text = "Content";
             content.Icon = treeViewIcons["folder"];

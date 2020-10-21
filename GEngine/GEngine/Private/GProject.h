@@ -96,10 +96,10 @@ public:
 	GProject();
 	~GProject();
 
-	std::wstring mSkyCubemapUniqueName;					// 天空盒
-	std::list<GProjectTextureInfo> mTextureInfo;		// 纹理信息
-	std::list<GProjectSceneObjectInfo> mSceneObjectInfo;// 场景物体信息
-	std::list<GProjectMeshInfo> mMeshInfo;				// 网格信息
+	std::wstring mSkyCubemapUniqueName;					 // 天空盒
+	std::list<GProjectTextureInfo> mTextureInfo;		 // 纹理信息
+	std::list<GProjectSceneObjectInfo> mSceneObjectInfo; // 场景物体信息
+	std::list<GProjectMeshInfo> mMeshInfo;				 // 网格信息
 
 	void SaveProject(
 		std::wstring filename,
@@ -111,7 +111,7 @@ public:
 	{
 		mSkyCubemapUniqueName = skyCubemapUniqueName;
 
-		mTextureInfo.clear(); // 清空场景对象的材质列表
+		mTextureInfo.clear(); // 清空场景对象的纹理列表
 
 		for (auto it = pTextures.begin(); it != pTextures.end(); it++)
 		{
