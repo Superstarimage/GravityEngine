@@ -94,6 +94,7 @@ public:
 
 	}
 
+	// 从本地加载材质
 	void LoadMaterial(std::wstring workDir)
 	{
 		std::ifstream ifs;

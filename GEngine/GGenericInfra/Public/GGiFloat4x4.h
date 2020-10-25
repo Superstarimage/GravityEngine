@@ -72,7 +72,8 @@ public:
 		return row[index];
 	}
 
-	static inline GGiFloat4x4 Identity()
+	// µ•Œªæÿ’Û
+	static inline GGiFloat4x4 Identity() 
 	{
 		GGiFloat4x4 ret;
 		ret.row[0] = GGiIdentityRow0;

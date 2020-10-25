@@ -125,28 +125,28 @@ void GCore::Initialize(HWND OutputWindow, double width, double height)
 				// RendererFactory包含成员函数：创建材质队形、创建材质加载器对象、创建材质对象、创建Mesh对象、创建几何体生成器对象、创建场景物体对象、创建Imgui对象
 				pRendererFactory = mRenderer->GetFactory(); // 获取渲染工厂
 				CreateImgui();   // 创建Imgui 
-				LoadTextures();  // 导入纹理
-				mRenderer->SyncTextures(mTextures); // 同步纹理，将mTexture中数据转存到GRiRenderer.h中的pTextures（字典）中
+				LoadTextures();  // 加载纹理
+				mRenderer->SyncTextures(mTextures);   // 同步纹理，将mTextures中数据转存到GRiRenderer.h中的pTextures（字典）中
 				LoadMaterials(); // 加载材质
-				mRenderer->SyncMaterials(mMaterials);
-				LoadMeshes();
-				mRenderer->SyncMeshes(mMeshes);
-				LoadSceneObjects();
-				mRenderer->SyncSceneObjects(mSceneObjects, mSceneObjectLayer);
-				LoadCameras();
+				mRenderer->SyncMaterials(mMaterials); // 同步材质，将mMaterials中数据转存到GRiRenderer.h中的pMaterials（字典）中
+				LoadMeshes();	 // 加载网格
+				mRenderer->SyncMeshes(mMeshes);		  // 同步网格，将mMeshes中数据转存到GRiRenderer.h中的pMeshes（字典）中
+				LoadSceneObjects(); // 加载场景对象
+				mRenderer->SyncSceneObjects(mSceneObjects, mSceneObjectLayer); // 同步场景中对象
+				LoadCameras();   // 加载摄像机
 				std::vector<GRiCamera*> cam =
 				{
 					mCamera.get(),
-					mCubemapSampleCamera[0].get(),
+					mCubemapSampleCamera[0].get(), // CubeMap
 					mCubemapSampleCamera[1].get(),
 					mCubemapSampleCamera[2].get(),
 					mCubemapSampleCamera[3].get(),
 					mCubemapSampleCamera[4].get(),
 					mCubemapSampleCamera[5].get()
 				};
-				mRenderer->SyncCameras(cam);
+				mRenderer->SyncCameras(cam); // 同步摄像机
 
-				mRenderer->Initialize();
+				mRenderer->Initialize(); // 初始化
 			}
 			catch (DxException& e)
 			{
@@ -570,6 +570,7 @@ void GCore::LoadMaterials()
 	sky->AddTexture(mTextures[L"Resource\\Textures\\GE_Default_Normal.png"].get());//Normal
 	mMaterials[L"sky"] = std::move(sky);
 
+	// 从文件中载入所有的材质文件
 	// Load materials from file.
 	{
 		std::vector<std::wstring> format;
@@ -582,8 +583,8 @@ void GCore::LoadMaterials()
 
 			auto matFile = std::make_unique<GMaterial>(newMat.get());
 			matFile->UniqueName = file;
-			matFile->LoadMaterial(WorkDirectory);
-			mMaterialFiles[file] = std::move(matFile);
+			matFile->LoadMaterial(WorkDirectory);      // 从xml加载材质信息
+			mMaterialFiles[file] = std::move(matFile); 
 
 			newMat->UniqueName = file;
 			newMat->Name = GGiEngineUtil::GetFileName(file);
@@ -633,15 +634,15 @@ void GCore::LoadMaterials()
 void GCore::LoadMeshes()
 {
 
-	GRiGeometryGenerator* geoGen = pRendererFactory->CreateGeometryGenerator();
+	GRiGeometryGenerator* geoGen = pRendererFactory->CreateGeometryGenerator(); // 创建几何体生成器
 
-	std::vector<GRiMeshData> meshData;
+	std::vector<GRiMeshData> meshData; // Mesh向量列表
 	GRiMeshData boxMeshData = geoGen->CreateBox(40.0f, 40.0f, 40.0f, 3);
 	meshData.push_back(boxMeshData);
-	auto geo = pRendererFactory->CreateMesh(meshData);
+	auto geo = pRendererFactory->CreateMesh(meshData); // 把网格信息交给D3D去创建Mesh
 	geo->UniqueName = L"Box";
 	geo->Name = L"Box";
-	geo->Submeshes[L"Box"].SetMaterial(mMaterials[L"Default"].get());
+	geo->Submeshes[L"Box"].SetMaterial(mMaterials[L"Default"].get()); // 设置材质
 	std::unique_ptr<GRiMesh> temp1(geo);
 	mMeshes[geo->UniqueName] = std::move(temp1);
 
@@ -691,12 +692,12 @@ void GCore::LoadMeshes()
 
 	std::vector<std::wstring> format;
 	format.emplace_back(L"fbx");
-	std::vector<std::wstring> files = std::move(GetAllFilesInFolder(L"Content", true, format));
+	std::vector<std::wstring> files = std::move(GetAllFilesInFolder(L"Content", true, format)); // 查找fbx资源文件，返回它们的相对路径
 	for (auto file : files)
 	{
 		meshData.clear();
-		mRenderer->GetFilmboxManager()->ImportFbxFile_Mesh(WorkDirectory + file, meshData);
-		geo = pRendererFactory->CreateMesh(meshData);
+		mRenderer->GetFilmboxManager()->ImportFbxFile_Mesh(WorkDirectory + file, meshData); // 获取fbx文件的网格信息，并存到meshData中
+		geo = pRendererFactory->CreateMesh(meshData); // 把网格信息交给D3D去创建Mesh
 		for (auto& subMesh : geo->Submeshes)
 		{
 			subMesh.second.SetMaterial(mMaterials[L"Default"].get());
@@ -708,11 +709,11 @@ void GCore::LoadMeshes()
 	}
 	for (auto info : mProject->mMeshInfo)
 	{
-		if (mMeshes.find(info.MeshUniqueName) != mMeshes.end())
+		if (mMeshes.find(info.MeshUniqueName) != mMeshes.end()) // 在资源文件中查找xml文件声明的文件
 		{
 			bool bFound = false;
 			std::wstring matName;
-			for (auto& submesh : mMeshes[info.MeshUniqueName]->Submeshes)
+			for (auto& submesh : mMeshes[info.MeshUniqueName]->Submeshes) // 针对mesh的submesh再次查找xml文件中声明的文件
 			{
 				bFound = false;
 				for (auto it = info.MaterialUniqueName.begin(); it != info.MaterialUniqueName.end(); it++)
@@ -721,19 +722,23 @@ void GCore::LoadMeshes()
 					{
 						bFound = true;
 						matName = (*it).str2;
+
+						// 【优化】 找到后是否可以直接break
 					}
 				}
 
 				if (bFound)
 				{
-					if (mMaterials.find(matName) != mMaterials.end())
+					if (mMaterials.find(matName) != mMaterials.end()) // 子mesh同样附有材质
 					{
 						submesh.second.SetMaterial(mMaterials[matName].get());
 					}
 				}
 			}
 
-			mMeshes[info.MeshUniqueName]->SetSdfResolution(info.SdfResolution);
+			// 对从资源文件中读取的mesh文件设置xml文件中对应读取的sdfresolution描述
+			mMeshes[info.MeshUniqueName]->SetSdfResolution(info.SdfResolution); 
+			// 资源文件里有mesh文件，xml文件里有对该mesh文件sdfresolution的描述
 
 			auto SdfSize = info.Sdf.size();
 			std::vector<float> sdf;
@@ -750,12 +755,14 @@ void GCore::LoadMeshes()
 	}
 }
 
+// 加载场景对象
 void GCore::LoadSceneObjects()
 {
-	mboolSceneLoad = true; // 载入场景标识开关打开
+	mboolSceneLoad = true; // 载入场景标识开关打开 Added by Ssi
 
-	mSceneObjectIndex = 0;
+	mSceneObjectIndex = 0; // 场景中物体的索引
 
+	// 创建screen quads以进行光通过和后期处理
 	// Create screen quads for light pass and post process.
 	std::unique_ptr<GRiSceneObject> fullScreenQuadSO(pRendererFactory->CreateSceneObject());
 	fullScreenQuadSO->UniqueName = L"FullScreenQuad";
@@ -848,14 +855,15 @@ void GCore::LoadSceneObjects()
 		mSceneObjects[metallicQuadSO->UniqueName] = std::move(metallicQuadSO);
 	}
 
+	// 从文件中导入场景对象
 	// Load scene objects from file.
 	{
-		for (auto info : mProject->mSceneObjectInfo)
+		for (auto info : mProject->mSceneObjectInfo) // 读取xml文件中物体的信息
 		{
 			std::unique_ptr<GRiSceneObject> newSO(pRendererFactory->CreateSceneObject());
 			newSO->UniqueName = info.UniqueName;
-			newSO->SetTexTransform(GGiFloat4x4::Identity());
-			newSO->SetObjIndex(mSceneObjectIndex++);
+			newSO->SetTexTransform(GGiFloat4x4::Identity()); // 初始化为单位矩阵
+			newSO->SetObjIndex(mSceneObjectIndex++);		 // 设置物体索引
 
 			/*
 			if (mMaterials.find(info.MaterialUniqueName) != mMaterials.end())
@@ -879,7 +887,7 @@ void GCore::LoadSceneObjects()
 
 			for (auto it = info.OverrideMaterialUniqueName.begin(); it != info.OverrideMaterialUniqueName.end(); it++)
 			{
-				if (mMaterials.find((*it).str2) != mMaterials.end())
+				if (mMaterials.find((*it).str2) != mMaterials.end()) // 找到xml内容中对应的文件
 				{
 					bool bFound = false;
 
@@ -957,6 +965,7 @@ void GCore::LoadCameras()
 	mCamera->InitPrevViewProj();
 	mCamera->InitPrevPosition();
 
+	// 构建Cubemap采样相机
 	// Build cubemap sampler cameras.
 	std::vector<float> center = { 0.0f, 0.0f, 0.0f };
 	std::vector<float> worldUp = { 0.0f, 1.0f, 0.0f };

@@ -124,14 +124,14 @@ void GDxRenderer::PreInitialize(HWND OutputWindow, double width, double height)
 
 void GDxRenderer::Initialize()
 {
-	auto numThreads = thread::hardware_concurrency();
+	auto numThreads = thread::hardware_concurrency(); // 返回硬件线程上下文的数量
 	mRendererThreadPool = std::make_unique<GGiThreadPool>(numThreads);
 
-	InitializeGpuProfiler();
-	BuildDescriptorHeaps();
-	BuildRootSignature();
-	BuildFrameResources();
-	BuildPSOs();
+	InitializeGpuProfiler(); // 初始化GPU Profiler（GPU分析工具）
+	BuildDescriptorHeaps();  // 构建描述符堆
+	BuildRootSignature();	 // 构建根签名
+	BuildFrameResources();	 // 
+	BuildPSOs();			 // 构建管线状态对象
 
 	/*
 	ThrowIfFailed(mCommandList->Close());
@@ -140,7 +140,7 @@ void GDxRenderer::Initialize()
 	*/
 
 	// Wait until initialization is complete.
-	FlushCommandQueue();
+	FlushCommandQueue(); // 刷新命令队列
 
 #ifdef USE_IMGUI
 	pImgui->Initialize(MainWnd(), md3dDevice.Get(), NUM_FRAME_RESOURCES, mSrvDescriptorHeap.Get());
@@ -160,16 +160,19 @@ void GDxRenderer::Initialize()
 	ThrowIfFailed(mCommandList->Reset(cmdListAlloc.Get(), nullptr));
 	*/
 
-	CubemapPreIntegration();
+	CubemapPreIntegration(); // 准备立方体贴图
 
+	// 执行初始化命令
 	// Execute the initialization commands.
 	ThrowIfFailed(mCommandList->Close());
 	ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
 	mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
+	// 等待初始化命令完成
 	// Wait until initialization is complete.
 	FlushCommandQueue();
 
+	// 遮挡剔除光栅化器
 	GRiOcclusionCullingRasterizer::GetInstance().Init(
 		DEPTH_READBACK_BUFFER_SIZE_X,
 		DEPTH_READBACK_BUFFER_SIZE_Y,
@@ -182,6 +185,7 @@ void GDxRenderer::Initialize()
 #endif
 	);
 
+	// 构建网格的有符号距离场（可以用来做大规模AO、软阴影等）
 	BuildMeshSDF();
 }
 
@@ -3661,6 +3665,7 @@ void GDxRenderer::SetImgui(GRiImgui* imguiPtr)
 	pImgui = dxImgui;
 }
 
+// 构建根签名
 void GDxRenderer::BuildRootSignature()
 {
 	auto staticSamplers = GetStaticSamplers();
@@ -3805,7 +3810,7 @@ void GDxRenderer::BuildRootSignature()
 			IID_PPV_ARGS(mRootSignatures["GBufferDebug"].GetAddressOf())));
 	}
 
-	// Tile/cluster pass root signature
+	// Tile/cluster pass root signature 分块/分簇
 	{
 
 		//Output
@@ -5052,7 +5057,7 @@ void GDxRenderer::BuildDescriptorHeaps()
 		+ 4 //g-buffer
 		+ 2 //tile/cluster pass srv and uav
 		+ 2 //sdf tile pass srv and uav
-		+ ShadowCascadeNum //cascaded shadow map
+		+ ShadowCascadeNum //cascaded shadow map 层级阴影
 		+ ShadowCascadeNum * 2 * 2 //cascaded shadow map prefilter X and Y srv and uav
 		+ 1 //screen space shadow
 		+ 3 //screen space shadow temporal filter
@@ -5060,7 +5065,7 @@ void GDxRenderer::BuildDescriptorHeaps()
 		+ 2 //light pass
 		+ 3 //taa
 		+ SSR_MAX_MIP_LEVEL + SSR_MAX_PREFILTER_LEVEL + 12 //ssr
-		+ 5 //dof
+		+ 5 //dof 景深
 		+ 7 //motion blur
 		+ BloomChainLength * 2 + 1 //bloom
 		+ 1 //blue noise
@@ -5070,6 +5075,7 @@ void GDxRenderer::BuildDescriptorHeaps()
 	ThrowIfFailed(md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvDescriptorHeap)));
 	
 	//
+	// 用实际的描述符填充堆
 	// Fill out the heap with actual descriptors.
 	//
 

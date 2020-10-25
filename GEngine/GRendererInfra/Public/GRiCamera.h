@@ -23,7 +23,7 @@ public:
 	std::vector<float> GetUp()const;
 	std::vector<float> GetLook()const;
 
-	// Get frustum properties.
+	// Get frustum properties. 视锥体
 	float GetNearZ()const;
 	float GetFarZ()const;
 	float GetAspect()const;
@@ -36,7 +36,7 @@ public:
 	float GetFarWindowWidth()const;
 	float GetFarWindowHeight()const;
 
-	// Set frustum.
+	// Set frustum. 视锥体
 	void SetLens(float fovY, float aspect, float zn, float zf);
 
 	// Define camera space via LookAt parameters.
@@ -48,13 +48,13 @@ public:
 	GGiFloat4x4 GetReversedProj();// const;
 
 	// Strafe/Walk/Ascend the camera a distance d.
-	void Strafe(float d);
-	void Walk(float d);
-	void Ascend(float d);
+	void Strafe(float d); // 扫射
+	void Walk(float d);   // 行走
+	void Ascend(float d); // 升降
 
 	// Rotate the camera.
-	void Pitch(float angle);
-	void RotateY(float angle);
+	void Pitch(float angle);   // 俯仰
+	void RotateY(float angle); // 左右
 
 	// After modifying camera position/orientation, call to rebuild the view matrix.
 	void UpdateViewMatrix();
@@ -67,7 +67,7 @@ public:
 	std::vector<float> GetPrevPosition();
 	void InitPrevPosition();
 
-	GGiFloat3 GetCornerPos(float lookDistance, bool left, bool up);
+	GGiFloat3 GetCornerPos(float lookDistance, bool left, bool up); // 获取当前屏幕角落的坐标位置
 
 private:
 	

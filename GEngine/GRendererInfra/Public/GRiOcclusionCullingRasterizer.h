@@ -20,6 +20,7 @@ struct ZTile
 	__m128i       mMask;
 };
 
+// ÕÚµ²ÌÞ³ýµÄ¹âÕ¤»¯Æ÷
 class GRiOcclusionCullingRasterizer
 {
 
