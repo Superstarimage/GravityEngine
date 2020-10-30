@@ -411,38 +411,8 @@
 		<count>5</count>
 		<item_version>0</item_version>
 		<item class_id="4" tracking_level="0" version="0">
-			<UniqueName>Plane</UniqueName>
+			<UniqueName>Cerberus1</UniqueName>
 			<OverrideMaterialUniqueName class_id="5" tracking_level="0" version="0">
-				<count>1</count>
-				<item_version>0</item_version>
-				<item class_id="6" tracking_level="0" version="0">
-					<str1>Grid</str1>
-					<str2>Content\Material\Sphere_11.gmat</str2>
-				</item>
-			</OverrideMaterialUniqueName>
-			<MeshUniqueName>Grid</MeshUniqueName>
-			<Location>
-				<count>3</count>
-				<item>0.000000000e+00</item>
-				<item>-2.000000000e+01</item>
-				<item>0.000000000e+00</item>
-			</Location>
-			<Rotation>
-				<count>3</count>
-				<item>0.000000000e+00</item>
-				<item>0.000000000e+00</item>
-				<item>0.000000000e+00</item>
-			</Rotation>
-			<Scale>
-				<count>3</count>
-				<item>1.500000000e+01</item>
-				<item>1.000000000e+00</item>
-				<item>1.500000000e+01</item>
-			</Scale>
-		</item>
-		<item>
-			<UniqueName>Cerberus</UniqueName>
-			<OverrideMaterialUniqueName>
 				<count>0</count>
 				<item_version>0</item_version>
 			</OverrideMaterialUniqueName>
@@ -471,7 +441,7 @@
 			<OverrideMaterialUniqueName>
 				<count>1</count>
 				<item_version>0</item_version>
-				<item>
+				<item class_id="6" tracking_level="0" version="0">
 					<str1>lambert1</str1>
 					<str2>Content\Models\Helmet\Helmet.gmat</str2>
 				</item>
@@ -554,6 +524,36 @@
 				<item>1.989999890e+00</item>
 				<item>1.989999890e+00</item>
 				<item>1.989999890e+00</item>
+			</Scale>
+		</item>
+		<item>
+			<UniqueName>Plane</UniqueName>
+			<OverrideMaterialUniqueName>
+				<count>1</count>
+				<item_version>0</item_version>
+				<item>
+					<str1>Grid</str1>
+					<str2>Content\Material\Sphere_11.gmat</str2>
+				</item>
+			</OverrideMaterialUniqueName>
+			<MeshUniqueName>Grid</MeshUniqueName>
+			<Location>
+				<count>3</count>
+				<item>0.000000000e+00</item>
+				<item>-2.000000000e+01</item>
+				<item>0.000000000e+00</item>
+			</Location>
+			<Rotation>
+				<count>3</count>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+			</Rotation>
+			<Scale>
+				<count>3</count>
+				<item>1.500000000e+01</item>
+				<item>1.000000000e+00</item>
+				<item>1.500000000e+01</item>
 			</Scale>
 		</item>
 	</mSceneObjectInfo>

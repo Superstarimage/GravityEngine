@@ -37,6 +37,7 @@ enum class RenderLayer : int
 	Debug,
 	Sky,
 	ScreenQuad,
+	Transparent,
 	Count
 };
 

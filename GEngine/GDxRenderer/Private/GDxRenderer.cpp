@@ -234,6 +234,7 @@ void GDxRenderer::Draw(const GGiGameTimer* gt)
 
 		mCommandList->SetPipelineState(mPSOs["GBuffer"].Get());
 
+
 		UINT objCBByteSize = GDxUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 		auto objectCB = mCurrFrameResource->ObjectCB->Resource();
 
@@ -272,6 +273,11 @@ void GDxRenderer::Draw(const GGiGameTimer* gt)
 
 		// For each render item...
 		DrawSceneObjects(mCommandList.Get(), RenderLayer::Deferred, true, true, true);
+
+		// Modified by Ssi:
+		mCommandList->SetPipelineState(mPSOs["Transparent"].Get());
+		// Modified by Ssi: 绘制Tranparent场景物体
+		DrawSceneObjects(mCommandList.Get(), RenderLayer::Transparent, true, false, false);
 
 		for (size_t i = 0; i < mRtvHeaps["GBuffer"]->mRtv.size(); i++)
 		{
@@ -4969,6 +4975,89 @@ void GDxRenderer::BuildRootSignature()
 			serializedRootSig->GetBufferSize(),
 			IID_PPV_ARGS(mRootSignatures["Forward"].GetAddressOf())));
 	}
+
+	// Modified by Ssi
+	// Transparent root signature
+	{
+		CD3DX12_DESCRIPTOR_RANGE range;
+		range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, MAX_TEXTURE_NUM, 0);
+
+		CD3DX12_ROOT_PARAMETER transparentRootParameters[5];
+		transparentRootParameters[0].InitAsConstantBufferView(0);
+		transparentRootParameters[1].InitAsConstants(1, 0, 1);
+		transparentRootParameters[2].InitAsConstantBufferView(1);
+		transparentRootParameters[3].InitAsDescriptorTable(1, &range, D3D12_SHADER_VISIBILITY_ALL);
+		transparentRootParameters[4].InitAsShaderResourceView(0, 1);
+
+		// A root signature is an array of root parameters.
+		CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(5, transparentRootParameters,
+			0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+		CD3DX12_STATIC_SAMPLER_DESC StaticSamplers[2];
+		StaticSamplers[0].Init(0, D3D12_FILTER_ANISOTROPIC);
+		StaticSamplers[1].Init(1, D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR,
+			D3D12_TEXTURE_ADDRESS_MODE_BORDER,
+			D3D12_TEXTURE_ADDRESS_MODE_BORDER,
+			D3D12_TEXTURE_ADDRESS_MODE_BORDER,
+			0.f, 16u, D3D12_COMPARISON_FUNC_LESS_EQUAL);
+		rootSigDesc.NumStaticSamplers = 2;
+		rootSigDesc.pStaticSamplers = StaticSamplers;
+
+		// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
+		ComPtr<ID3DBlob> serializedRootSig = nullptr;
+		ComPtr<ID3DBlob> errorBlob = nullptr;
+		HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+			serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+
+		if (errorBlob != nullptr)
+		{
+			::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+		}
+		ThrowIfFailed(hr);
+
+		ThrowIfFailed(md3dDevice->CreateRootSignature(
+			0,
+			serializedRootSig->GetBufferPointer(),
+			serializedRootSig->GetBufferSize(),
+			IID_PPV_ARGS(mRootSignatures["Transparent"].GetAddressOf())));
+
+		//CD3DX12_DESCRIPTOR_RANGE texTable;
+		//texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+
+		//// Root parameter can be a table, root descriptor or root constants.
+		//CD3DX12_ROOT_PARAMETER slotRootParameter[4];
+
+		//// Perfomance TIP: Order from most frequent to least frequent.
+		//slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
+		//slotRootParameter[1].InitAsConstantBufferView(0);
+		//slotRootParameter[2].InitAsConstantBufferView(1);
+		//slotRootParameter[3].InitAsConstantBufferView(2);
+
+		//auto staticSamplers = GetStaticSamplers();
+
+		//// A root signature is an array of root parameters.
+		//CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter,
+		//	(UINT)staticSamplers.size(), staticSamplers.data(),
+		//	D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+		//// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
+		//ComPtr<ID3DBlob> serializedRootSig = nullptr;
+		//ComPtr<ID3DBlob> errorBlob = nullptr;
+		//HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+		//	serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+
+		//if (errorBlob != nullptr)
+		//{
+		//	::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+		//}
+		//ThrowIfFailed(hr);
+
+		//ThrowIfFailed(md3dDevice->CreateRootSignature(
+		//	0,
+		//	serializedRootSig->GetBufferPointer(),
+		//	serializedRootSig->GetBufferSize(),
+		//	IID_PPV_ARGS(mRootSignatures["Transparent"].GetAddressOf())));
+	}
 }
 
 std::array<const CD3DX12_STATIC_SAMPLER_DESC, 7> GDxRenderer::GetStaticSamplers()
@@ -7163,6 +7252,116 @@ void GDxRenderer::BuildPSOs()
 		ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&prefilterPsoDesc, IID_PPV_ARGS(&mPSOs["Prefilter"])));
 	}
 
+	// Modified by Ssi: 
+	// PSO for transpatent objects
+	{
+		D3D12_DEPTH_STENCIL_DESC gBufferDSD;
+		gBufferDSD.DepthEnable = true;
+		gBufferDSD.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+#if USE_REVERSE_Z
+		gBufferDSD.DepthFunc = D3D12_COMPARISON_FUNC_GREATER;
+#else
+		gBufferDSD.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+#endif
+		gBufferDSD.StencilEnable = true;
+		gBufferDSD.StencilReadMask = 0xff;
+		gBufferDSD.StencilWriteMask = 0xff;
+		gBufferDSD.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+		gBufferDSD.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+		gBufferDSD.FrontFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
+		gBufferDSD.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+		// We are not rendering backfacing polygons, so these settings do not matter. 
+		gBufferDSD.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+		gBufferDSD.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+		gBufferDSD.BackFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
+		gBufferDSD.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC gBufferPsoDesc;
+		ZeroMemory(&gBufferPsoDesc, sizeof(gBufferPsoDesc));
+		gBufferPsoDesc.VS = GDxShaderManager::LoadShader(L"Shaders\\DefaultVS.cso");
+		gBufferPsoDesc.PS = GDxShaderManager::LoadShader(L"Shaders\\DeferredPS.cso");
+		gBufferPsoDesc.InputLayout.pInputElementDescs = GDxInputLayout::DefaultLayout;
+		gBufferPsoDesc.InputLayout.NumElements = _countof(GDxInputLayout::DefaultLayout);
+		gBufferPsoDesc.pRootSignature = mRootSignatures["Transparent"].Get();
+		//gBufferPsoDesc.pRootSignature = mRootSignatures["Forward"].Get();
+		gBufferPsoDesc.DepthStencilState = gBufferDSD;
+
+		// 设置BlendState
+		D3D12_RENDER_TARGET_BLEND_DESC transparencyBlendDesc;
+		transparencyBlendDesc.BlendEnable = true;
+		transparencyBlendDesc.LogicOpEnable = false;
+		transparencyBlendDesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
+		transparencyBlendDesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+		transparencyBlendDesc.BlendOp = D3D12_BLEND_OP_ADD;
+		transparencyBlendDesc.SrcBlendAlpha = D3D12_BLEND_ONE;
+		transparencyBlendDesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+		transparencyBlendDesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		transparencyBlendDesc.LogicOp = D3D12_LOGIC_OP_NOOP;
+		transparencyBlendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+		gBufferPsoDesc.BlendState.RenderTarget[0] = transparencyBlendDesc;
+		// gBufferPsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		gBufferPsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+		gBufferPsoDesc.SampleMask = UINT_MAX;
+		gBufferPsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		gBufferPsoDesc.NumRenderTargets = (UINT)mRtvHeaps["GBuffer"]->mRtv.size();
+		for (size_t i = 0; i < mRtvHeaps["GBuffer"]->mRtv.size(); i++)
+		{
+			gBufferPsoDesc.RTVFormats[i] = mRtvHeaps["GBuffer"]->mRtv[i]->mProperties.mRtvFormat;
+		}
+		gBufferPsoDesc.DSVFormat = mDepthStencilFormat;
+		gBufferPsoDesc.SampleDesc.Count = 1;// don't use msaa in deferred rendering.
+		//deferredPSO = sysRM->CreatePSO(StringID("deferredPSO"), descPipelineState);
+		ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&gBufferPsoDesc, IID_PPV_ARGS(&mPSOs["Transparent"])));
+
+
+
+		//D3D12_GRAPHICS_PIPELINE_STATE_DESC transparentPsoDesc;
+
+		////
+		//// PSO for opaque objects.
+		////
+		//ZeroMemory(&transparentPsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+		//transparentPsoDesc.InputLayout.pInputElementDescs = GDxInputLayout::TransparentLayout; // 描述布局
+		//transparentPsoDesc.InputLayout.NumElements = _countof(GDxInputLayout::TransparentLayout);
+		//transparentPsoDesc.pRootSignature = mRootSignatures["Transparent"].Get(); // 根签名
+		//transparentPsoDesc.VS = GDxShaderManager::LoadShader(L"Shaders\\DefaultVS.cso");
+		//transparentPsoDesc.PS = GDxShaderManager::LoadShader(L"Shaders\\DeferredPS.cso");
+		//transparentPsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+		//transparentPsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		//transparentPsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+		//transparentPsoDesc.SampleMask = UINT_MAX;
+		//transparentPsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		//transparentPsoDesc.NumRenderTargets = 1;
+		//transparentPsoDesc.RTVFormats[0] = mBackBufferFormat;
+		//transparentPsoDesc.SampleDesc.Count = 1; // m4xMsaaState ? 4 : 1;
+		//transparentPsoDesc.SampleDesc.Quality = 0; // m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
+		//transparentPsoDesc.DSVFormat = mDepthStencilFormat;
+		//// ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&mPSOs["opaque"])));
+		//ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&transparentPsoDesc, IID_PPV_ARGS(&mPSOs["transparent"])));
+
+		//
+		// PSO for transparent objects
+		//
+
+		// D3D12_GRAPHICS_PIPELINE_STATE_DESC transparentPsoDesc = transparencyBlendDesc;
+
+		/*D3D12_RENDER_TARGET_BLEND_DESC transparencyBlendDesc;
+		transparencyBlendDesc.BlendEnable = true;
+		transparencyBlendDesc.LogicOpEnable = false;
+		transparencyBlendDesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
+		transparencyBlendDesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+		transparencyBlendDesc.BlendOp = D3D12_BLEND_OP_ADD;
+		transparencyBlendDesc.SrcBlendAlpha = D3D12_BLEND_ONE;
+		transparencyBlendDesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+		transparencyBlendDesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		transparencyBlendDesc.LogicOp = D3D12_LOGIC_OP_NOOP;
+		transparencyBlendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+		transparentPsoDesc.BlendState.RenderTarget[0] = transparencyBlendDesc;
+		ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&transparentPsoDesc, IID_PPV_ARGS(&mPSOs["transparent"])));*/
+	}
+
 }
 
 void GDxRenderer::BuildFrameResources()
@@ -7539,7 +7738,7 @@ void GDxRenderer::RegisterTexture(GRiTexture* text)
 	}
 }
 
-// 选中场景中的物体
+// 选中场景中的物体【不透明物体/透明物体】
 GRiSceneObject* GDxRenderer::SelectSceneObject(int sx, int sy)
 {
 	GGiFloat4x4 P = pCamera->GetProj();
@@ -7558,6 +7757,7 @@ GRiSceneObject* GDxRenderer::SelectSceneObject(int sx, int sy)
 	GRiSceneObject* pickedSceneObject = nullptr;
 	float tPicked = GGiEngineUtil::Infinity;
 
+	// 不透明物体的选中
 	// Check if we picked an opaque render item.  A real app might keep a separate "picking list"
 	// of objects that can be selected.   
 	for (auto so : pSceneObjectLayer[(int)RenderLayer::Deferred])
@@ -7660,6 +7860,109 @@ GRiSceneObject* GDxRenderer::SelectSceneObject(int sx, int sy)
 			}
 		}
 	}
+
+	// Modified by Ssi: 透明物体的选中
+	for (auto so : pSceneObjectLayer[(int)RenderLayer::Transparent])
+	{
+		auto mesh = so->GetMesh();
+
+		XMMATRIX W = GDx::GGiToDxMatrix(so->GetTransform());
+
+		XMMATRIX invWorld = XMMatrixInverse(&XMMatrixDeterminant(W), W);
+
+		// Tranform ray to vi space of Mesh.
+		XMMATRIX toLocal = XMMatrixMultiply(invView, invWorld);
+
+		XMVECTOR rayOrigin = XMVector3TransformCoord(viewRayOrigin, toLocal);
+		XMVECTOR rayDir = XMVector3TransformNormal(viewRayDir, toLocal);
+
+		// Make the ray direction unit length for the intersection tests.
+		rayDir = XMVector3Normalize(rayDir);
+
+		// If we hit the bounding box of the Mesh, then we might have picked a Mesh triangle,
+		// so do the ray/triangle tests.
+		//
+		// If we did not hit the bounding box, then it is impossible that we hit 
+		// the Mesh, so do not waste effort doing ray/triangle tests.
+		BoundingBox bBox;
+		bBox.Center.x = /*so->GetLocation()[0] +*/ so->GetMesh()->bounds.Center[0];
+		bBox.Center.y = /*so->GetLocation()[1] +*/ so->GetMesh()->bounds.Center[1];
+		bBox.Center.z = /*so->GetLocation()[2] +*/ so->GetMesh()->bounds.Center[2];
+		bBox.Extents.x = so->GetMesh()->bounds.Extents[0];
+		bBox.Extents.y = so->GetMesh()->bounds.Extents[1];
+		bBox.Extents.z = so->GetMesh()->bounds.Extents[2];
+		float tmin = 0.0f;
+		if (bBox.Intersects(rayOrigin, rayDir, tmin))
+		{
+			// NOTE: For the demo, we know what to cast the vertex/index data to.  If we were mixing
+			// formats, some metadata would be needed to figure out what to cast it to.
+			GDxMesh* dxMesh = dynamic_cast<GDxMesh*>(so->GetMesh());
+			if (dxMesh == nullptr)
+				ThrowGGiException("cast failed from GRiMesh* to GDxMesh*.");
+			shared_ptr<GDxStaticVIBuffer> dxViBuffer = dynamic_pointer_cast<GDxStaticVIBuffer>(dxMesh->mVIBuffer);
+			if (dxViBuffer == nullptr)
+				ThrowGGiException("cast failed from shared_ptr<GDxStaticVIBuffer> to shared_ptr<GDxStaticVIBuffer>.");
+
+			auto vertices = (GRiVertex*)dxViBuffer->VertexBufferCPU->GetBufferPointer();
+			auto indices = (std::uint32_t*)dxViBuffer->IndexBufferCPU->GetBufferPointer();
+			UINT triCount = dxMesh->mVIBuffer->IndexCount / 3;
+
+			// Find the nearest ray/triangle intersection.
+			tmin = GGiEngineUtil::Infinity;
+			for (auto submesh : so->GetMesh()->Submeshes)
+			{
+				auto startIndexLocation = submesh.second.StartIndexLocation;
+				auto baseVertexLocation = submesh.second.BaseVertexLocation;
+
+				for (size_t i = 0; i < (submesh.second.IndexCount / 3); i++)
+				{
+					// Indices for this triangle.
+					UINT i0 = indices[startIndexLocation + i * 3 + 0] + baseVertexLocation;
+					UINT i1 = indices[startIndexLocation + i * 3 + 1] + baseVertexLocation;
+					UINT i2 = indices[startIndexLocation + i * 3 + 2] + baseVertexLocation;
+
+					// Vertices for this triangle.
+					XMFLOAT3 v0f;
+					XMFLOAT3 v1f;
+					XMFLOAT3 v2f;
+					v0f.x = vertices[i0].Position[0];
+					v0f.y = vertices[i0].Position[1];
+					v0f.z = vertices[i0].Position[2];
+					v1f.x = vertices[i1].Position[0];
+					v1f.y = vertices[i1].Position[1];
+					v1f.z = vertices[i1].Position[2];
+					v2f.x = vertices[i2].Position[0];
+					v2f.y = vertices[i2].Position[1];
+					v2f.z = vertices[i2].Position[2];
+					XMVECTOR v0 = XMLoadFloat3(&v0f);
+					XMVECTOR v1 = XMLoadFloat3(&v1f);
+					XMVECTOR v2 = XMLoadFloat3(&v2f);
+
+					// We have to iterate over all the triangles in order to find the nearest intersection.
+					float t = 0.0f;
+					if (TriangleTests::Intersects(rayOrigin, rayDir, v0, v1, v2, t))
+					{
+						if (t < tmin)
+						{
+							// This is the new nearest picked triangle.
+							tmin = t;
+						}
+					}
+				}
+			}
+
+			std::vector<float> soScale = so->GetScale();
+			float relSize = (float)pow(soScale[0] * soScale[0] + soScale[1] * soScale[1] + soScale[2] * soScale[2], 0.5);
+			tmin *= relSize;
+
+			if (tmin < tPicked)
+			{
+				tPicked = tmin;
+				pickedSceneObject = so;
+			}
+		}
+	}
+
 	return pickedSceneObject;
 }
 

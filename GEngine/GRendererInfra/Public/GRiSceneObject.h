@@ -76,9 +76,9 @@ protected:
 
 	//GRiMaterial* Mat = nullptr;
 
-	std::unordered_map<std::wstring, GRiMaterial*> pOverrideMaterial; // 场景物体上可能有多个材质
+	std::unordered_map<std::wstring, GRiMaterial*> pOverrideMaterial; // 材质；场景物体上可能有多个材质
 
-	GRiMesh* Mesh;
+	GRiMesh* Mesh; // 网格模型（含材质信息）
 
 	GGiFloat4x4 TexTransform;
 

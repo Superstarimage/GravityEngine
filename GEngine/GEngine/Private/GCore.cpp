@@ -855,13 +855,17 @@ void GCore::LoadSceneObjects()
 		mSceneObjects[metallicQuadSO->UniqueName] = std::move(metallicQuadSO);
 	}
 
+	// Modified by Ssi
+	// 从文件中导入一个透明对象
+	int transparentObjFlag = 0;
+
 	// 从文件中导入场景对象
 	// Load scene objects from file.
 	{
-		for (auto info : mProject->mSceneObjectInfo) // 读取xml文件中物体的信息
+		for (auto info : mProject->mSceneObjectInfo) // 读取xml文件中物体的信息，info为xml定义的场景物体信息
 		{
-			std::unique_ptr<GRiSceneObject> newSO(pRendererFactory->CreateSceneObject());
-			newSO->UniqueName = info.UniqueName;
+			std::unique_ptr<GRiSceneObject> newSO(pRendererFactory->CreateSceneObject()); // 创建物体
+			newSO->UniqueName = info.UniqueName;			 // 设置物体名称
 			newSO->SetTexTransform(GGiFloat4x4::Identity()); // 初始化为单位矩阵
 			newSO->SetObjIndex(mSceneObjectIndex++);		 // 设置物体索引
 
@@ -876,19 +880,24 @@ void GCore::LoadSceneObjects()
 			}
 			*/
 
-			if (mMeshes.find(info.MeshUniqueName) != mMeshes.end())
+			// 网格信息赋值（仅包含一个网格）
+			if (mMeshes.find(info.MeshUniqueName) != mMeshes.end()) // 从网格资源中找到物体的网格
 			{
-				newSO->SetMesh(mMeshes[info.MeshUniqueName].get());
+				newSO->SetMesh(mMeshes[info.MeshUniqueName].get()); // 为物体设置网格
 			}
 			else
 			{
-				newSO->SetMesh(mMeshes[L"Sphere"].get());
+				newSO->SetMesh(mMeshes[L"Sphere"].get());			// 未找到，设置为默认的球体
 			}
 
+			// 材质信息赋值
 			for (auto it = info.OverrideMaterialUniqueName.begin(); it != info.OverrideMaterialUniqueName.end(); it++)
 			{
-				if (mMaterials.find((*it).str2) != mMaterials.end()) // 找到xml内容中对应的文件
-				{
+				// 在资源文件中查找xml文件中定义的对应的材质
+				if (mMaterials.find((*it).str2) != mMaterials.end()) // 找到xml内容中对应的材质信息
+				{   // 如果在资源文件中找到了物体上要附加的材质，需要再做进一步验证
+					// 为什么要验证？物体上附加的某个材质，需要和物体子网格中附加的材质一致才行，
+					// 也就是说建立了某附加材质与物体子网格之间固定的关系
 					bool bFound = false;
 
 					for (auto& submesh : newSO->GetMesh()->Submeshes)
@@ -901,18 +910,37 @@ void GCore::LoadSceneObjects()
 					}
 
 					if (bFound)
-						newSO->SetOverrideMaterial((*it).str1, mMaterials[(*it).str2].get());
+						newSO->SetOverrideMaterial((*it).str1, mMaterials[(*it).str2].get()); // 子网格名-材质名
 				}
 			}
 
+			// 变换信息赋值
 			newSO->SetLocation(info.Location[0], info.Location[1], info.Location[2]);
 			newSO->SetRotation(info.Rotation[0], info.Rotation[1], info.Rotation[2]);
 			newSO->SetScale(info.Scale[0], info.Scale[1], info.Scale[2]);
 			newSO->UpdateTransform();
 			newSO->ResetPrevTransform();
-			mSceneObjectLayer[(int)RenderLayer::Deferred].push_back(newSO.get());
-			mSceneObjects[newSO->UniqueName] = std::move(newSO);
+			// mSceneObjectLayer[(int)RenderLayer::Deferred].push_back(newSO.get());
+
+			// Modified by Ssi: 将透明对象载入Transparent RenderLayer中
+			if (transparentObjFlag == 0)
+			{
+				mSceneObjectLayer[(int)RenderLayer::Transparent].push_back(newSO.get());
+				transparentObjFlag = 1;
+			}
+			else
+			{
+				mSceneObjectLayer[(int)RenderLayer::Deferred].push_back(newSO.get());
+			}
+
+			mSceneObjects[newSO->UniqueName] = std::move(newSO); // 将新建物体存入场景对象中统一管理
 		}
+
+		// Modified by Ssi: 将Deferred和Transparent对象存到mSceneObjectLayer_Deferred_Transparent中统一操控
+		mSceneObjectLayer_Deferred_Transparent.insert(mSceneObjectLayer_Deferred_Transparent.end(), 
+			mSceneObjectLayer[(int)RenderLayer::Deferred].begin(), mSceneObjectLayer[(int)RenderLayer::Deferred].end());
+		mSceneObjectLayer_Deferred_Transparent.insert(mSceneObjectLayer_Deferred_Transparent.end(),
+			mSceneObjectLayer[(int)RenderLayer::Transparent].begin(), mSceneObjectLayer[(int)RenderLayer::Transparent].end());
 	}
 
 	// Load test objects.
@@ -1015,10 +1043,16 @@ void GCore::RecordPrevFrame(const GGiGameTimer* gt)
 	GGiFloat4x4 prevVP = view * proj;
 	mCamera->SetPrevViewProj(prevVP);
 	mCamera->SetPrevPosition(mCamera->GetPosition());
+	// Modified by Ssi:
 	for (auto so : mSceneObjectLayer[(int)RenderLayer::Deferred])
 	{
 		so->SetPrevTransform(so->GetTransform());
 	}
+
+	//for (auto so : mSceneObjectLayer_Deferred_Transparent)
+	//{
+	//	so->SetPrevTransform(so->GetTransform());
+	//}
 }
 
 void GCore::UpdateGui(const GGiGameTimer* gt)
@@ -1210,12 +1244,17 @@ std::vector<std::wstring> GCore::GetAllFilesUnderFolder(std::wstring relPath, bo
 
 int GCore::GetSceneObjectNum()
 {
-	return (int)(mSceneObjectLayer[(int)RenderLayer::Deferred].size());
+	// Modified by Ssi: 
+	// return (int)(mSceneObjectLayer[(int)RenderLayer::Deferred].size());
+	return (int)(mSceneObjectLayer_Deferred_Transparent.size());
 }
 
 const wchar_t* GCore::GetSceneObjectName(int index)
 {
-	return mSceneObjectLayer[(int)RenderLayer::Deferred][index]->UniqueName.c_str();
+	// Modified by Ssi:
+	// return mSceneObjectLayer[(int)RenderLayer::Deferred][index]->UniqueName.c_str();
+
+	return mSceneObjectLayer_Deferred_Transparent[index]->UniqueName.c_str();
 }
 
 void GCore::GetSceneObjectTransform(wchar_t* objName, float* trans)
@@ -1295,7 +1334,10 @@ void GCore::SaveProject()
 	{
 		(*it).second->SaveMaterial(WorkDirectory);
 	}
-	mProject->SaveProject(WorkDirectory + ProjectName + L".gproj", mSkyCubemapUniqueName, mTextures, mSceneObjectLayer[(int)RenderLayer::Deferred], mMeshes);
+
+	// Modified by Ssi:
+	// mProject->SaveProject(WorkDirectory + ProjectName + L".gproj", mSkyCubemapUniqueName, mTextures, mSceneObjectLayer[(int)RenderLayer::Deferred], mMeshes);
+	mProject->SaveProject(WorkDirectory + ProjectName + L".gproj", mSkyCubemapUniqueName, mTextures, mSceneObjectLayer_Deferred_Transparent, mMeshes);
 }
 
 void GCore::LoadProject()
@@ -1494,10 +1536,16 @@ void GCore::CreateSceneObject(wchar_t* sceneObjectName, wchar_t* meshUniqueName)
 	//newSceneObject->SetMaterial(mMaterials[L"Default"].get());
 	newSceneObject->SetMesh(mMeshes[MeshUniqueNameStr].get());
 	mSceneObjectLayer[(int)RenderLayer::Deferred].push_back(newSceneObject.get());
+
+	// 目前默认新建的都是不透明物体【Deferred】
+	// Modified by Ssi: 保证mSceneObjectLayer_Deferred_Transparent表和mSceneObjectLayer Deferred表同步
+	mSceneObjectLayer_Deferred_Transparent.push_back(newSceneObject.get());
+
 	mSceneObjects[newSceneObject->UniqueName] = std::move(newSceneObject);
 	mRenderer->SyncSceneObjects(mSceneObjects, mSceneObjectLayer);
 }
 
+// 重命名场景物体
 void GCore::RenameSceneObject(wchar_t* oldName, wchar_t* newName)
 {
 	std::wstring OldNameStr(oldName);
@@ -1515,8 +1563,12 @@ void GCore::RenameSceneObject(wchar_t* oldName, wchar_t* newName)
 	mSceneObjects[NewNameStr] = std::move(toMove);
 	mSceneObjects.erase(OldNameStr);
 	mRenderer->SyncSceneObjects(mSceneObjects, mSceneObjectLayer);
+
+	// Modified by Ssi: 为mSceneObjectLayer_Deferred_Transparent表中物体重命名
+
 }
 
+// 删除场景物体
 void GCore::DeleteSceneObject(wchar_t* sceneObjectName)
 {
 	std::wstring SceneObjectNameStr(sceneObjectName);
@@ -1533,6 +1585,14 @@ void GCore::DeleteSceneObject(wchar_t* sceneObjectName)
 	}
 	mSceneObjects.erase(SceneObjectNameStr);
 	mRenderer->SyncSceneObjects(mSceneObjects, mSceneObjectLayer);
+
+	// Modified by Ssi: 删除mSceneObjectLayer_Deferred_Transparent表中物体
+	//auto it_DTObject = std::find(mSceneObjectLayer_Deferred_Transparent.begin(),
+	//	mSceneObjectLayer_Deferred_Transparent.end(), mSceneObjects[SceneObjectNameStr].get());
+	//if (it_DTObject != mSceneObjectLayer_Deferred_Transparent.end())
+	//{
+	//	mSceneObjectLayer_Deferred_Transparent.erase(it_DTObject);
+	//}
 }
 
 const wchar_t* GCore::GetSkyCubemapUniqueName()

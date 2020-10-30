@@ -126,3 +126,10 @@ to
 - [ ] Mono
 - [ ] Particle System
 - [ ] Animation System
+
+
+
+------
+Modified by Ssi:
+- [x] Transparent(Created by Blend)
+![SSR](https://github.com/Superstarimage/GravityEngine/tree/main/screenshot/Transparent.png)
