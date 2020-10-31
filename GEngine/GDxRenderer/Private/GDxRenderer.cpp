@@ -277,7 +277,7 @@ void GDxRenderer::Draw(const GGiGameTimer* gt)
 		// Modified by Ssi:
 		mCommandList->SetPipelineState(mPSOs["Transparent"].Get());
 		// Modified by Ssi: 绘制Tranparent场景物体
-		DrawSceneObjects(mCommandList.Get(), RenderLayer::Transparent, true, false, false);
+		DrawSceneObjects(mCommandList.Get(), RenderLayer::Transparent, true, true, false);
 
 		for (size_t i = 0; i < mRtvHeaps["GBuffer"]->mRtv.size(); i++)
 		{
@@ -4976,13 +4976,13 @@ void GDxRenderer::BuildRootSignature()
 			IID_PPV_ARGS(mRootSignatures["Forward"].GetAddressOf())));
 	}
 
-	// Modified by Ssi
+	// Modified by Ssi:
 	// Transparent root signature
 	{
-		CD3DX12_DESCRIPTOR_RANGE range;
-		range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, MAX_TEXTURE_NUM, 0);
+		CD3DX12_DESCRIPTOR_RANGE range; // 根签名的根常量之描述符表
+		range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, MAX_TEXTURE_NUM, 0); // 着色器资源视图
 
-		CD3DX12_ROOT_PARAMETER transparentRootParameters[5];
+		CD3DX12_ROOT_PARAMETER transparentRootParameters[5]; // 根参数
 		transparentRootParameters[0].InitAsConstantBufferView(0);
 		transparentRootParameters[1].InitAsConstants(1, 0, 1);
 		transparentRootParameters[2].InitAsConstantBufferView(1);
@@ -7255,36 +7255,36 @@ void GDxRenderer::BuildPSOs()
 	// Modified by Ssi: 
 	// PSO for transpatent objects
 	{
-		D3D12_DEPTH_STENCIL_DESC gBufferDSD;
-		gBufferDSD.DepthEnable = true;
-		gBufferDSD.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+		D3D12_DEPTH_STENCIL_DESC transparentDSD;
+		transparentDSD.DepthEnable = true;
+		transparentDSD.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
 #if USE_REVERSE_Z
-		gBufferDSD.DepthFunc = D3D12_COMPARISON_FUNC_GREATER;
+		transparentDSD.DepthFunc = D3D12_COMPARISON_FUNC_GREATER;
 #else
-		gBufferDSD.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+		transparentDSD.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
 #endif
-		gBufferDSD.StencilEnable = true;
-		gBufferDSD.StencilReadMask = 0xff;
-		gBufferDSD.StencilWriteMask = 0xff;
-		gBufferDSD.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
-		gBufferDSD.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
-		gBufferDSD.FrontFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
-		gBufferDSD.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+		transparentDSD.StencilEnable = true;
+		transparentDSD.StencilReadMask = 0xff;
+		transparentDSD.StencilWriteMask = 0xff;
+		transparentDSD.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+		transparentDSD.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+		transparentDSD.FrontFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
+		transparentDSD.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 		// We are not rendering backfacing polygons, so these settings do not matter. 
-		gBufferDSD.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
-		gBufferDSD.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
-		gBufferDSD.BackFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
-		gBufferDSD.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+		transparentDSD.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+		transparentDSD.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+		transparentDSD.BackFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
+		transparentDSD.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC gBufferPsoDesc;
-		ZeroMemory(&gBufferPsoDesc, sizeof(gBufferPsoDesc));
-		gBufferPsoDesc.VS = GDxShaderManager::LoadShader(L"Shaders\\DefaultVS.cso");
-		gBufferPsoDesc.PS = GDxShaderManager::LoadShader(L"Shaders\\DeferredPS.cso");
-		gBufferPsoDesc.InputLayout.pInputElementDescs = GDxInputLayout::DefaultLayout;
-		gBufferPsoDesc.InputLayout.NumElements = _countof(GDxInputLayout::DefaultLayout);
-		gBufferPsoDesc.pRootSignature = mRootSignatures["Transparent"].Get();
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC transparentPsoDesc;
+		ZeroMemory(&transparentPsoDesc, sizeof(transparentPsoDesc));
+		transparentPsoDesc.VS = GDxShaderManager::LoadShader(L"Shaders\\DefaultVS.cso");
+		transparentPsoDesc.PS = GDxShaderManager::LoadShader(L"Shaders\\DeferredPS.cso");
+		transparentPsoDesc.InputLayout.pInputElementDescs = GDxInputLayout::DefaultLayout;
+		transparentPsoDesc.InputLayout.NumElements = _countof(GDxInputLayout::DefaultLayout);
+		transparentPsoDesc.pRootSignature = mRootSignatures["Transparent"].Get();
 		//gBufferPsoDesc.pRootSignature = mRootSignatures["Forward"].Get();
-		gBufferPsoDesc.DepthStencilState = gBufferDSD;
+		transparentPsoDesc.DepthStencilState = transparentDSD;
 
 		// 设置BlendState
 		D3D12_RENDER_TARGET_BLEND_DESC transparencyBlendDesc;
@@ -7299,21 +7299,25 @@ void GDxRenderer::BuildPSOs()
 		transparencyBlendDesc.LogicOp = D3D12_LOGIC_OP_NOOP;
 		transparencyBlendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
-		gBufferPsoDesc.BlendState.RenderTarget[0] = transparencyBlendDesc;
+		transparentPsoDesc.BlendState.RenderTarget[0] = transparencyBlendDesc;
 		// gBufferPsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		gBufferPsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		gBufferPsoDesc.SampleMask = UINT_MAX;
-		gBufferPsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		gBufferPsoDesc.NumRenderTargets = (UINT)mRtvHeaps["GBuffer"]->mRtv.size();
-		for (size_t i = 0; i < mRtvHeaps["GBuffer"]->mRtv.size(); i++)
-		{
-			gBufferPsoDesc.RTVFormats[i] = mRtvHeaps["GBuffer"]->mRtv[i]->mProperties.mRtvFormat;
-		}
-		gBufferPsoDesc.DSVFormat = mDepthStencilFormat;
-		gBufferPsoDesc.SampleDesc.Count = 1;// don't use msaa in deferred rendering.
-		//deferredPSO = sysRM->CreatePSO(StringID("deferredPSO"), descPipelineState);
-		ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&gBufferPsoDesc, IID_PPV_ARGS(&mPSOs["Transparent"])));
+		transparentPsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+		transparentPsoDesc.SampleMask = UINT_MAX;
+		transparentPsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
+		// Modified by Ssi: 渲染目标数量和格式
+		//gBufferPsoDesc.NumRenderTargets = (UINT)mRtvHeaps["GBuffer"]->mRtv.size();
+		//for (size_t i = 0; i < mRtvHeaps["GBuffer"]->mRtv.size(); i++)
+		//{
+		//	gBufferPsoDesc.RTVFormats[i] = mRtvHeaps["GBuffer"]->mRtv[i]->mProperties.mRtvFormat;
+		//}
+		transparentPsoDesc.NumRenderTargets = 1;
+		transparentPsoDesc.RTVFormats[0] = mBackBufferFormat;
+
+		transparentPsoDesc.DSVFormat = mDepthStencilFormat;
+		transparentPsoDesc.SampleDesc.Count = 1;// don't use msaa in deferred rendering.
+		//deferredPSO = sysRM->CreatePSO(StringID("deferredPSO"), descPipelineState);
+		ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&transparentPsoDesc, IID_PPV_ARGS(&mPSOs["Transparent"])));
 
 
 		//D3D12_GRAPHICS_PIPELINE_STATE_DESC transparentPsoDesc;
@@ -7757,9 +7761,11 @@ GRiSceneObject* GDxRenderer::SelectSceneObject(int sx, int sy)
 	GRiSceneObject* pickedSceneObject = nullptr;
 	float tPicked = GGiEngineUtil::Infinity;
 
-	// 不透明物体的选中
+	// 透明和不透明物体的选中
 	// Check if we picked an opaque render item.  A real app might keep a separate "picking list"
 	// of objects that can be selected.   
+	// for (auto so : pSceneObjectLayer[(int)RenderLayer::Deferred])
+
 	for (auto so : pSceneObjectLayer[(int)RenderLayer::Deferred])
 	{
 		auto mesh = so->GetMesh();

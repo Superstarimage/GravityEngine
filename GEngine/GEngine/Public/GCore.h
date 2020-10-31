@@ -146,7 +146,7 @@ private:
 	std::unordered_map<std::wstring, std::unique_ptr<GRiSceneObject>> mSceneObjects; // 场景对象
 	std::vector<GRiSceneObject*> mSceneObjectLayer[(int)RenderLayer::Count];		 // 场景中不同类别的对象数组
 	// Modified by Ssi: 
-	std::vector<GRiSceneObject*> mSceneObjectLayer_Deferred_Transparent;			 // 场景中Deferred和Transparent对象-用于集中操作
+	std::vector<GRiSceneObject*> mSceneObjectLayer_Deferred_Transparent;			 // 场景中Deferred和Transparent对象 -- 用于集中操作
 
 	std::unordered_map<std::wstring, std::unique_ptr<GMaterial>> mMaterialFiles;
 

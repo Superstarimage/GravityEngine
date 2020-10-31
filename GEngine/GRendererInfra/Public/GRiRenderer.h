@@ -52,7 +52,7 @@ public:
 	std::unordered_map<std::wstring, GRiMaterial*> pMaterials; 
 	std::unordered_map<std::wstring, GRiMesh*> pMeshes;
 	std::unordered_map<std::wstring, GRiSceneObject*> pSceneObjects;
-	std::vector<GRiSceneObject*> pSceneObjectLayer[(int)RenderLayer::Count];
+	std::vector<GRiSceneObject*> pSceneObjectLayer[(int)RenderLayer::Count]; // to Pick Object
 
 	virtual void RegisterTexture(GRiTexture* text) = 0;
 	std::vector<int> mTexturePoolFreeIndex;
