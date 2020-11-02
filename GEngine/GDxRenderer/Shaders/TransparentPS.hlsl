@@ -2,6 +2,8 @@
 #include "Material.hlsli"
 #include "ObjectCB.hlsli"
 
+// ObjectConstants blend_objectConstants : register(b0);
+
 struct VertexOutput
 {
 	float4	pos			: SV_POSITION;
@@ -19,7 +21,7 @@ struct PixelOutput
 {
 	float4	albedo						: SV_TARGET0;
 	float4	normal						: SV_TARGET1;
-	//float4	worldPos				: SV_TARGET2;
+	// float4	worldPos				: SV_TARGET2;
 	float2	velocity					: SV_TARGET2;
 	float4	occlusionRoughnessMetallic	: SV_TARGET3;
 };
@@ -72,7 +74,8 @@ PixelOutput main(VertexOutput input)// : SV_TARGET
 	float roughness = ormFromTexture.g;
 	float metal = ormFromTexture.b;
 	output.occlusionRoughnessMetallic = float4(0, roughness, metal, 0);
-	output.albedo.a = input.linearZ;
-	// output.albedo.a = 0.1f;
+	// output.albedo.a = input.linearZ;
+	// output.albedo.a = blend_objectConstants.blend_alpha;
+	output.albedo.a = 0.1f;
 	return output;
 }

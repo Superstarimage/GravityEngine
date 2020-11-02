@@ -11,7 +11,7 @@ GDxFrameResource::GDxFrameResource(ID3D12Device* device, UINT passCount, UINT ob
 	SsaoCB = std::make_unique<GDxUploadBuffer<SsaoConstants>>(device, 1, true);
 	MaterialBuffer = std::make_unique<GDxUploadBuffer<MaterialData>>(device, materialCount, false);
 	SceneObjectSdfDescriptorBuffer = std::make_unique<GDxUploadBuffer<SceneObjectSdfDescriptor>>(device, MAX_SCENE_OBJECT_NUM, false);
-	ObjectCB = std::make_unique<GDxUploadBuffer<ObjectConstants>>(device, objectCount, true);
+	ObjectCB = std::make_unique<GDxUploadBuffer<ObjectConstants>>(device, objectCount, true); // 物体常量缓冲区
 	LightCB = std::make_unique<GDxUploadBuffer<LightConstants>>(device, 1, true);
 	SkyCB = std::make_unique<GDxUploadBuffer<SkyPassConstants>>(device, 1, true);
 }

@@ -12,10 +12,11 @@
 
 struct ObjectConstants
 {
-	DirectX::XMFLOAT4X4 World = GDxMathHelper::Identity4x4();
-	DirectX::XMFLOAT4X4 PrevWorld = GDxMathHelper::Identity4x4();
-	DirectX::XMFLOAT4X4 InvTransWorld = GDxMathHelper::Identity4x4();
-	DirectX::XMFLOAT4X4 TexTransform = GDxMathHelper::Identity4x4();
+	DirectX::XMFLOAT4X4 World = GDxMathHelper::Identity4x4();		  // 物体的变换矩阵
+	DirectX::XMFLOAT4X4 PrevWorld = GDxMathHelper::Identity4x4();	  // 物体上一帧的变换矩阵
+	DirectX::XMFLOAT4X4 InvTransWorld = GDxMathHelper::Identity4x4(); // 变换矩阵的逆
+	DirectX::XMFLOAT4X4 TexTransform = GDxMathHelper::Identity4x4();  // 贴图的变换矩阵
+	float blend_alpha; // blend技术实现透明的alpha值；手动修改之来调节透明物体的透明度
 	//UINT     MaterialIndex;
 	//UINT     ObjPad0;
 	//UINT     ObjPad1;

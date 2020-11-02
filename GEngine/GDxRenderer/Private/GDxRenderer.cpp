@@ -2825,6 +2825,10 @@ void GDxRenderer::UpdateObjectCBs(const GGiGameTimer* gt)
 			XMStoreFloat4x4(&objConstants.PrevWorld, XMMatrixTranspose(prevWorld));
 			XMStoreFloat4x4(&objConstants.InvTransWorld, XMMatrixTranspose(invTransWorld));
 			XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
+			
+			// Modified by Ssi: 在这更新物体常量缓冲区中的alpha值
+			objConstants.blend_alpha = 0.1f;
+
 			/*
 			if (e.second->GetMesh()->NumFramesDirty > 0)
 			{
@@ -2832,7 +2836,7 @@ void GDxRenderer::UpdateObjectCBs(const GGiGameTimer* gt)
 			}
 			*/
 
-			currObjectCB->CopyData(e.second->GetObjIndex(), objConstants);
+			currObjectCB->CopyData(e.second->GetObjIndex(), objConstants); // 更新物体常量缓冲区的值
 
 			// Next FrameResource need to be updated too.
 			e.second->NumFramesDirty--;
@@ -4982,10 +4986,10 @@ void GDxRenderer::BuildRootSignature()
 		CD3DX12_DESCRIPTOR_RANGE range; // 根签名的根常量之描述符表
 		range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, MAX_TEXTURE_NUM, 0); // 着色器资源视图
 
-		CD3DX12_ROOT_PARAMETER transparentRootParameters[5]; // 根参数
-		transparentRootParameters[0].InitAsConstantBufferView(0);
+		CD3DX12_ROOT_PARAMETER transparentRootParameters[5];	  // 根参数
+		transparentRootParameters[0].InitAsConstantBufferView(0); // 创建根CBV，指定绑定到着色器常量缓冲寄存器“b0”
 		transparentRootParameters[1].InitAsConstants(1, 0, 1);
-		transparentRootParameters[2].InitAsConstantBufferView(1);
+		transparentRootParameters[2].InitAsConstantBufferView(1); // 创建根CBV，指定绑定到着色器常量缓冲寄存器“b1”
 		transparentRootParameters[3].InitAsDescriptorTable(1, &range, D3D12_SHADER_VISIBILITY_ALL);
 		transparentRootParameters[4].InitAsShaderResourceView(0, 1);
 
@@ -7279,12 +7283,13 @@ void GDxRenderer::BuildPSOs()
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC transparentPsoDesc;
 		ZeroMemory(&transparentPsoDesc, sizeof(transparentPsoDesc));
 		transparentPsoDesc.VS = GDxShaderManager::LoadShader(L"Shaders\\DefaultVS.cso");
-		transparentPsoDesc.PS = GDxShaderManager::LoadShader(L"Shaders\\DeferredPS.cso");
+		transparentPsoDesc.PS = GDxShaderManager::LoadShader(L"Shaders\\TransparentPS.cso");
 		transparentPsoDesc.InputLayout.pInputElementDescs = GDxInputLayout::DefaultLayout;
 		transparentPsoDesc.InputLayout.NumElements = _countof(GDxInputLayout::DefaultLayout);
 		transparentPsoDesc.pRootSignature = mRootSignatures["Transparent"].Get();
 		//gBufferPsoDesc.pRootSignature = mRootSignatures["Forward"].Get();
 		transparentPsoDesc.DepthStencilState = transparentDSD;
+		transparentPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 
 		// 设置BlendState
 		D3D12_RENDER_TARGET_BLEND_DESC transparencyBlendDesc;
@@ -7293,7 +7298,7 @@ void GDxRenderer::BuildPSOs()
 		transparencyBlendDesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
 		transparencyBlendDesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
 		transparencyBlendDesc.BlendOp = D3D12_BLEND_OP_ADD;
-		transparencyBlendDesc.SrcBlendAlpha = D3D12_BLEND_ONE;
+		transparencyBlendDesc.SrcBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA; //  D3D12_BLEND_ONE;
 		transparencyBlendDesc.DestBlendAlpha = D3D12_BLEND_ZERO;
 		transparencyBlendDesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
 		transparencyBlendDesc.LogicOp = D3D12_LOGIC_OP_NOOP;
@@ -7431,7 +7436,7 @@ void GDxRenderer::CubemapPreIntegration()
 		//objConstants.ObjPad1 = 0;
 		//objConstants.ObjPad2 = 0;
 
-		currObjectCB->CopyData(e.second->GetObjIndex(), objConstants);
+		currObjectCB->CopyData(e.second->GetObjIndex(), objConstants); // 更新常量缓冲区中的值
 	}
 
 	// Load sky pass CB.
@@ -7459,7 +7464,7 @@ void GDxRenderer::CubemapPreIntegration()
 				mSkyPassCB.roughness = ((float)i / (float)mPrefilterLevels);
 			}
 			auto uploadCB = PreIntegrationPassCbs[i * 6 + j].get();
-			uploadCB->CopyData(0, mSkyPassCB);
+			uploadCB->CopyData(0, mSkyPassCB); // 更新常量缓冲区中的值
 		}
 	}
 
@@ -7682,12 +7687,13 @@ void GDxRenderer::DrawSceneObject(ID3D12GraphicsCommandList* cmdList, GRiSceneOb
 	cmdList->IASetIndexBuffer(&dxMesh->mVIBuffer->IndexBufferView());
 	cmdList->IASetPrimitiveTopology(dxSO->GetPrimitiveTopology());
 
+	// 更新物体常量缓冲区（含纹理资源）
 	if (bSetObjCb)
 	{
 		UINT objCBByteSize = GDxUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 		auto objectCB = mCurrFrameResource->ObjectCB->Resource();
 		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + sObject->GetObjIndex() * objCBByteSize;
-		cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
+		cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress); // 将常量缓冲区作为参数绑定到根描述符
 	}
 
 	if (!bCheckCullState || (bCheckCullState && (sObject->GetCullState() == CullState::Visible)))
