@@ -2,7 +2,15 @@
 #include "Material.hlsli"
 #include "ObjectCB.hlsli"
 
-// ObjectConstants blend_objectConstants : register(b0);
+cbuffer blend_objectConstants : register(b0) 
+{
+	float4x4 World;		  // 物体的变换矩阵
+	float4x4 PrevWorld;	  // 物体上一帧的变换矩阵
+	float4x4 InvTransWorld; // 变换矩阵的逆
+	float4x4 TexTransform;  // 贴图的变换矩阵
+	float blend_alpha; // blend技术实现透明的alpha值；手动修改之来调节透明物体的透明度
+}
+// PassConstants blend_objectConstants; register(b2);
 
 struct VertexOutput
 {
@@ -75,7 +83,7 @@ PixelOutput main(VertexOutput input)// : SV_TARGET
 	float metal = ormFromTexture.b;
 	output.occlusionRoughnessMetallic = float4(0, roughness, metal, 0);
 	// output.albedo.a = input.linearZ;
-	// output.albedo.a = blend_objectConstants.blend_alpha;
-	output.albedo.a = 0.1f;
+	output.albedo.a = blend_alpha;
+	// output.albedo.a = 0.1f;
 	return output;
 }

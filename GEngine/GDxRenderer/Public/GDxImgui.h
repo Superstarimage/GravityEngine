@@ -32,6 +32,9 @@ public:
 	void Render(ID3D12GraphicsCommandList* cmdList);
 
 	virtual void ShutDown() override;
+
+	static float adjustAlpha;	 // 静态全局变量(默认初值为0)，调出给GDxRenderer.cpp中的常量缓冲区接收
+	static float isAlphaChanged; // 判断imgui是否修改了alpha值
 	
 private:
 	
@@ -41,5 +44,9 @@ private:
 	static ImU8 mCameraSpeedLowerBound;
 	static float mInitialCameraSpeed;
 
+	// Modified by Ssi: Imgui控制Alpha值
+	static float mAlphaUpperBound;
+	static float mAlphaLowerBound;
+	static float mAlpha;
 };
 

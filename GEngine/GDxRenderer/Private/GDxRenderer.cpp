@@ -274,11 +274,6 @@ void GDxRenderer::Draw(const GGiGameTimer* gt)
 		// For each render item...
 		DrawSceneObjects(mCommandList.Get(), RenderLayer::Deferred, true, true, true);
 
-		// Modified by Ssi:
-		mCommandList->SetPipelineState(mPSOs["Transparent"].Get());
-		// Modified by Ssi: 绘制Tranparent场景物体
-		DrawSceneObjects(mCommandList.Get(), RenderLayer::Transparent, true, true, false);
-
 		for (size_t i = 0; i < mRtvHeaps["GBuffer"]->mRtv.size(); i++)
 		{
 			mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mRtvHeaps["GBuffer"]->mRtv[i]->mResource.Get(),
@@ -289,6 +284,18 @@ void GDxRenderer::Draw(const GGiGameTimer* gt)
 			D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
 
 		GDxGpuProfiler::GetGpuProfiler().EndGpuProfile("G-Buffer Pass");
+	}
+
+	// Modified by Ssi:
+	// Transparent Pass
+	{
+		// Modified by Ssi:
+		mCommandList->SetPipelineState(mPSOs["Transparent"].Get());
+		auto objectCB = mCurrFrameResource->ObjectCB->Resource();
+		mCommandList->SetGraphicsRootConstantBufferView(0, objectCB->GetGPUVirtualAddress()); // 绑定根参数符
+
+		// Modified by Ssi: 绘制Tranparent场景物体
+		DrawSceneObjects(mCommandList.Get(), RenderLayer::Transparent, true, true, false);
 	}
 
 	// Depth Downsample Pass
@@ -2785,11 +2792,13 @@ void GDxRenderer::ScriptUpdate(const GGiGameTimer* gt)
 void GDxRenderer::UpdateObjectCBs(const GGiGameTimer* gt)
 {
 	auto currObjectCB = mCurrFrameResource->ObjectCB.get();
+
+	
 	for (auto& e : pSceneObjects)
 	{
 		// Only update the cbuffer data if the constants have changed.  
 		// This needs to be tracked per frame resource.
-		if (e.second->NumFramesDirty > 0)
+		if (e.second->NumFramesDirty > 0 || pImgui->isAlphaChanged)
 		{
 			e.second->UpdateTransform();
 
@@ -2827,7 +2836,10 @@ void GDxRenderer::UpdateObjectCBs(const GGiGameTimer* gt)
 			XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
 			
 			// Modified by Ssi: 在这更新物体常量缓冲区中的alpha值
-			objConstants.blend_alpha = 0.1f;
+			objConstants.blend_alpha = pImgui->adjustAlpha; // 0.0f;
+			// Debug
+			ImGui::Text(std::to_string(pImgui->adjustAlpha).c_str());
+
 
 			/*
 			if (e.second->GetMesh()->NumFramesDirty > 0)
@@ -7298,7 +7310,7 @@ void GDxRenderer::BuildPSOs()
 		transparencyBlendDesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
 		transparencyBlendDesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
 		transparencyBlendDesc.BlendOp = D3D12_BLEND_OP_ADD;
-		transparencyBlendDesc.SrcBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA; //  D3D12_BLEND_ONE;
+		transparencyBlendDesc.SrcBlendAlpha = D3D12_BLEND_ONE; //  D3D12_BLEND_INV_SRC_ALPHA;
 		transparencyBlendDesc.DestBlendAlpha = D3D12_BLEND_ZERO;
 		transparencyBlendDesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
 		transparencyBlendDesc.LogicOp = D3D12_LOGIC_OP_NOOP;

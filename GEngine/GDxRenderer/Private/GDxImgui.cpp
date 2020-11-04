@@ -11,6 +11,13 @@ ImU8 GDxImgui::mCameraSpeedUpperBound = 10;
 ImU8 GDxImgui::mCameraSpeedLowerBound = 1;
 float GDxImgui::mInitialCameraSpeed = 150.0f;
 
+// Modified by Ssi: Imgui控制Alpha值
+float GDxImgui::mAlphaUpperBound = 1.0;
+float GDxImgui::mAlphaLowerBound = 0.0;
+float GDxImgui::mAlpha = 1.0f;
+
+float GDxImgui::adjustAlpha = 0.0f;
+float GDxImgui::isAlphaChanged = false;
 
 
 GDxImgui::GDxImgui()
@@ -192,6 +199,13 @@ void GDxImgui::Manipulation(bool bShowGizmo, const float *cameraView, float *cam
 		cameraSpeedExp = mCameraSpeedLowerBound;
 	ImGui::SliderScalar("CameraSpeed", ImGuiDataType_U8, &cameraSpeedExp, &mCameraSpeedLowerBound, &mCameraSpeedUpperBound, "%u");
 	cameraSpeed = mInitialCameraSpeed * (float)pow(1.5f, cameraSpeedExp - initCameraSpeedExp);
+
+	// Modified by Ssi: 滑动条控制透明度（Alpha）
+	ImGui::SliderScalar("Alpha", ImGuiDataType_Float, &mAlpha, &mAlphaLowerBound, &mAlphaUpperBound, "%f");
+	adjustAlpha = mAlpha;
+	isAlphaChanged = true;
+	
+	ImGui::Text(std::to_string(mAlpha).c_str());
 
 	if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
 		mCurrentGizmoOperation = ImGuizmo::TRANSLATE;

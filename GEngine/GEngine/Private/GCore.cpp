@@ -1092,6 +1092,7 @@ void GCore::UpdateGui(const GGiGameTimer* gt)
 		}
 	}
 
+	// Modified by Ssi: To add alpha adjusting support.
 	mImgui->SetGUIContent(
 		bSelectionNotNull, 
 		view,
