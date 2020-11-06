@@ -18,6 +18,13 @@ public:
 	virtual void Initialize() = 0;
 	virtual void PreInitialize(HWND OutputWindow, double width, double height) = 0;
 
+	// Modified by Ssi: 记录被选中的物体，用于修改其透明属性
+	GRiSceneObject* pickedSceneObjectforTO = nullptr;
+
+	// Modified by Ssi: 
+	// 更改物体透明/非透明属性后，刷新pSceneObjecLayer、pSceneObjects列表和mSceneObjectLayer、mSceneObjects列表
+	virtual bool UpdateObjectTransparentOpaqueList() = 0;
+
 	virtual void OnResize() = 0;
 
 	virtual bool IsRunning() = 0;

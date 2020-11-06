@@ -2618,6 +2618,73 @@ void GDxRenderer::Update(const GGiGameTimer* gt)
 	CullSceneObjects(gt);
 }
 
+// Modified by Ssi: 更改物体透明/非透明属性后，刷新pSceneObjectLayer、pSceneObjects列表和mSceneObjectLayer、mSceneObjects列表
+bool GDxRenderer::UpdateObjectTransparentOpaqueList()
+{
+	// 核对物体是否被选中
+	if (pickedSceneObjectforTO == nullptr) return false;
+	// 核对透明属性复选框（Imgui）是否被勾选/取消勾选
+	if (!pImgui->isTransparentCheckboxChanged) return false;
+	// 此时，已经能保证在选中物体的同时，还对物体的透明属性进行了修改
+
+	// 更新被选中物体的透明属性
+	pickedSceneObjectforTO->GRiIsTransparent = pImgui->isTransparent;
+
+	// 下面更新pSceneObjects列表中对应物体的透明属性，并且根据修改后的透明属性对pSceneObjectLayer[transparent/opaque]列表中
+	// 的元素进行增加/删除
+
+	// 更新pSceneObjects列表中对应该物体的透明属性
+	if (pSceneObjects.find(pickedSceneObjectforTO->UniqueName) != pSceneObjects.end())
+	{
+		pSceneObjects[pickedSceneObjectforTO->UniqueName]->GRiIsTransparent = pImgui->isTransparent;
+	}
+	else
+	{
+		assert(0); // 代码逻辑出现问题
+	}
+
+	// 根据修改后的透明属性对pSceneObjectLayer[Transparent/Opaque]列表中的元素进行增加/删除
+	// 将物体从pSceneObjectLayer-Opaque中删除，并添加到pSceneObjectLayer-Transparent中
+	if (pImgui->isTransparent) // 物体的透明属性被设置为【透明】
+	{ 
+		// 将物体从pSceneObjectLayer-Opaque中删除，这里对应pSceneObjectLayer[(int)RenderLayer::Deferred]列表
+		std::vector<GRiSceneObject *>::iterator iter = std::find(pSceneObjectLayer[(int)RenderLayer::Deferred].begin(),
+			pSceneObjectLayer[(int)RenderLayer::Deferred].end(), pickedSceneObjectforTO);
+		if (iter == pSceneObjectLayer[(int)RenderLayer::Deferred].end()) // 未找到
+		{
+			assert(0); // 未在pSceneObjectLayer-Opaque中找到选中的元素，代码逻辑存在问题
+		}
+		else
+		{
+			pSceneObjectLayer[(int)RenderLayer::Deferred].erase(iter); 
+		}
+
+		// 将物体添加到pSceneObjectLayer-Transparent中，这里对应pSceneObjectLayer[(int)RenderLayer::Transparent]列表
+		pSceneObjectLayer[(int)RenderLayer::Transparent].push_back(pickedSceneObjectforTO);
+
+	}
+	else // 物体的透明属性被设置为【不透明】
+	{
+		// 将物体从pSceneObjectLayer-Transparent中删除，这里对应pSceneObjectLayer[(int)RenderLayer::Transparent]列表
+		std::vector<GRiSceneObject *>::iterator iter = std::find(pSceneObjectLayer[(int)RenderLayer::Transparent].begin(),
+			pSceneObjectLayer[(int)RenderLayer::Transparent].end(), pickedSceneObjectforTO);
+		if (iter == pSceneObjectLayer[(int)RenderLayer::Transparent].end()) // 未找到
+		{
+			assert(0); // 未在pSceneObjectLayer-Opaque中找到选中的元素，代码逻辑存在问题
+		}
+		else
+		{
+			pSceneObjectLayer[(int)RenderLayer::Transparent].erase(iter);
+		}
+
+		// 将物体添加到pSceneObjectLayer-Opaque中，这里对应pSceneObjectLayer[(int)RenderLayer::Deferred]列表
+		pSceneObjectLayer[(int)RenderLayer::Deferred].push_back(pickedSceneObjectforTO);
+	}
+
+	return true;
+}
+
+
 void GDxRenderer::OnResize()
 {
 	assert(md3dDevice);
@@ -7881,6 +7948,9 @@ GRiSceneObject* GDxRenderer::SelectSceneObject(int sx, int sy)
 			{
 				tPicked = tmin;
 				pickedSceneObject = so;
+
+				// Modified by Ssi: 被选中的物体，用于设置透明属性
+				pickedSceneObjectforTO = so;
 			}
 		}
 	}
@@ -7983,8 +8053,17 @@ GRiSceneObject* GDxRenderer::SelectSceneObject(int sx, int sy)
 			{
 				tPicked = tmin;
 				pickedSceneObject = so;
+
+				// Modified by Ssi: 记录被选中的物体，用于设置透明属性
+				pickedSceneObjectforTO = so;
 			}
 		}
+	}
+
+	// 若物体被选中，读取物体的透明属性为Imgui上的透明属性复选框赋初值
+	if (pickedSceneObject != nullptr)
+	{
+		pImgui->isTransparent = pickedSceneObject->GRiIsTransparent;
 	}
 
 	return pickedSceneObject;

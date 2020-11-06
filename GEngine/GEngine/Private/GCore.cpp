@@ -176,6 +176,68 @@ void GCore::Update()
 	GGiCpuProfiler::GetInstance().BeginFrame();
 
 	mRenderer->Update(mTimer.get());
+
+	// Modified by Ssi:
+	// 更改物体透明/非透明属性后，刷新pSceneObjecLayer、pSceneObjects列表和mSceneObjectLayer、mSceneObjects列表
+	UpdateObjectTransparentOpaqueList();
+}
+
+// Modified by Ssi:
+// 更改物体透明/非透明属性后，刷新pSceneObjecLayer、pSceneObjects列表和mSceneObjectLayer、mSceneObjects列表
+void GCore::UpdateObjectTransparentOpaqueList()
+{
+	if (!mRenderer->UpdateObjectTransparentOpaqueList()) return; // 未picked、未在Imgui上设定透明属性
+	// 此时pSceneObjecLayer、pSceneObjects列表已被更新。由于新建物体时，会根据旧的mSceneObjectLayer、mSceneObjects列表
+	// 更新pSceneObjecLayer、pSceneObjects列表，所以这里需要对mSceneObjectLayer、mSceneObjects列表进行更新
+	
+	// 更新mSceneObjects列表中对应该物体的透明属性
+	if (mSceneObjects.find(mRenderer->pickedSceneObjectforTO->UniqueName) != mSceneObjects.end())
+	{
+		mSceneObjects[mRenderer->pickedSceneObjectforTO->UniqueName]->GRiIsTransparent = mRenderer->pickedSceneObjectforTO->GRiIsTransparent;
+	}
+	else
+	{
+		assert(0); // 代码逻辑出现问题
+	}
+
+	// 根据修改后的透明属性对pSceneObjectLayer[Transparent/Opaque]列表中的元素进行增加/删除
+	// 将物体从pSceneObjectLayer-Opaque中删除，并添加到pSceneObjectLayer-Transparent中
+	if (mRenderer->pickedSceneObjectforTO->GRiIsTransparent) // 物体的透明属性被设置为【透明】
+	{
+		// 将物体从pSceneObjectLayer-Opaque中删除，这里对应pSceneObjectLayer[(int)RenderLayer::Deferred]列表
+		std::vector<GRiSceneObject *>::iterator iter = std::find(mSceneObjectLayer[(int)RenderLayer::Deferred].begin(),
+			mSceneObjectLayer[(int)RenderLayer::Deferred].end(), mRenderer->pickedSceneObjectforTO);
+		if (iter == mSceneObjectLayer[(int)RenderLayer::Deferred].end()) // 未找到
+		{
+			assert(0); // 未在pSceneObjectLayer-Opaque中找到选中的元素，代码逻辑存在问题
+		}
+		else
+		{
+			mSceneObjectLayer[(int)RenderLayer::Deferred].erase(iter);
+		}
+
+		// 将物体添加到pSceneObjectLayer-Transparent中，这里对应pSceneObjectLayer[(int)RenderLayer::Transparent]列表
+		mSceneObjectLayer[(int)RenderLayer::Transparent].push_back(mRenderer->pickedSceneObjectforTO);
+
+	}
+	else // 物体的透明属性被设置为【不透明】
+	{
+		// 将物体从pSceneObjectLayer-Transparent中删除，这里对应pSceneObjectLayer[(int)RenderLayer::Transparent]列表
+		std::vector<GRiSceneObject *>::iterator iter = std::find(mSceneObjectLayer[(int)RenderLayer::Transparent].begin(),
+			mSceneObjectLayer[(int)RenderLayer::Transparent].end(), mRenderer->pickedSceneObjectforTO);
+		if (iter == mSceneObjectLayer[(int)RenderLayer::Transparent].end()) // 未找到
+		{
+			assert(0); // 未在pSceneObjectLayer-Opaque中找到选中的元素，代码逻辑存在问题
+		}
+		else
+		{
+			mSceneObjectLayer[(int)RenderLayer::Transparent].erase(iter);
+		}
+
+		// 将物体添加到pSceneObjectLayer-Opaque中，这里对应pSceneObjectLayer[(int)RenderLayer::Deferred]列表
+		mSceneObjectLayer[(int)RenderLayer::Deferred].push_back(mRenderer->pickedSceneObjectforTO);
+	}
+
 }
 
 // WPF+Winform GUI运行后执行的消息循环
@@ -923,10 +985,13 @@ void GCore::LoadSceneObjects()
 			// mSceneObjectLayer[(int)RenderLayer::Deferred].push_back(newSO.get());
 
 			// Modified by Ssi: 将透明对象载入Transparent RenderLayer中
-			if (transparentObjFlag == 0)
+			if (transparentObjFlag < 2)
 			{
+				// 设置物体的透明属性为透明
+				newSO->GRiIsTransparent = true;
+
 				mSceneObjectLayer[(int)RenderLayer::Transparent].push_back(newSO.get());
-				transparentObjFlag = 1;
+				transparentObjFlag++;
 			}
 			else
 			{

@@ -16,8 +16,13 @@ float GDxImgui::mAlphaUpperBound = 1.0;
 float GDxImgui::mAlphaLowerBound = 0.0;
 float GDxImgui::mAlpha = 1.0f;
 
-float GDxImgui::adjustAlpha = 0.0f;
-float GDxImgui::isAlphaChanged = false;
+float GDxImgui::adjustAlpha = 0.0f;	   // 静态全局变量(默认初值为0)，调出给GDxRenderer.cpp中的常量缓冲区接收
+bool GDxImgui::isAlphaChanged = false; // 判断imgui是否修改了alpha值
+
+
+// Modified by Ssi: Imgui控制Alpha值——复选框部分
+bool GDxImgui::isTransparent = false;				 // 物体透明属性的实际值
+bool GDxImgui::isTransparentCheckboxChanged = false; // 检测透明属性是否被修改——复选框是否被勾选/取消勾选
 
 
 GDxImgui::GDxImgui()
@@ -204,8 +209,13 @@ void GDxImgui::Manipulation(bool bShowGizmo, const float *cameraView, float *cam
 	ImGui::SliderScalar("Alpha", ImGuiDataType_Float, &mAlpha, &mAlphaLowerBound, &mAlphaUpperBound, "%f");
 	adjustAlpha = mAlpha;
 	isAlphaChanged = true;
-	
-	ImGui::Text(std::to_string(mAlpha).c_str());
+	// 输出测试
+	// ImGui::Text(std::to_string(mAlpha).c_str());
+
+	// 创建复选框，用于设置物体透明/不透明
+	isTransparentCheckboxChanged = ImGui::Checkbox("Transparent", &isTransparent);
+	ImGui::SameLine(); // 将组件置于同行
+	ImGui::Text(isTransparent ? "true" : "false");
 
 	if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
 		mCurrentGizmoOperation = ImGuizmo::TRANSLATE;

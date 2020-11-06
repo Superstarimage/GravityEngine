@@ -33,8 +33,13 @@ public:
 
 	virtual void ShutDown() override;
 
-	static float adjustAlpha;	 // 静态全局变量(默认初值为0)，调出给GDxRenderer.cpp中的常量缓冲区接收
-	static float isAlphaChanged; // 判断imgui是否修改了alpha值
+	// Modified by Ssi: Imgui控制Alpha值——滑动条部分
+	static float adjustAlpha;	// 静态全局变量(默认初值为0)，调出给GDxRenderer.cpp中的常量缓冲区接收
+	static bool isAlphaChanged; // 判断imgui是否修改了alpha值
+
+	// Modified by Ssi: Imgui控制Alpha值——复选框部分
+	static bool isTransparent;  // 物体透明属性的实际值
+	static bool isTransparentCheckboxChanged; // 检测透明属性是否被修改——复选框是否被勾选/取消勾选
 	
 private:
 	
@@ -48,5 +53,6 @@ private:
 	static float mAlphaUpperBound;
 	static float mAlphaLowerBound;
 	static float mAlpha;
+
 };
 

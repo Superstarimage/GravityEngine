@@ -139,6 +139,10 @@ protected:
 	virtual void Update(const GGiGameTimer* gt) override;
 	virtual void Draw(const GGiGameTimer* gt) override;
 
+	// Modified by Ssi:
+	// 更改物体透明/非透明属性后，刷新pSceneObjecLayer、pSceneObjects列表和mSceneObjectLayer、mSceneObjects列表
+	virtual bool UpdateObjectTransparentOpaqueList() override;
+
 	void ScriptUpdate(const GGiGameTimer* gt);
 
 	void UpdateObjectCBs(const GGiGameTimer* gt);

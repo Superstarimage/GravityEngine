@@ -19,6 +19,9 @@ public:
 	// Give it a name so we can look it up by name.
 	std::wstring UniqueName;
 
+	// 场景物体的透明属性
+	bool GRiIsTransparent = false;
+
 	std::vector<float> GetLocation();
 	std::vector<float> GetRotation();
 	std::vector<float> GetScale();

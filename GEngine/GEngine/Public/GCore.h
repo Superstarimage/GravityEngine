@@ -180,6 +180,9 @@ private:
 
 	void Update();
 
+	// Modified by Ssi: 更改物体透明/非透明属性后，刷新pSceneObjecLayer、pSceneObjects列表和mSceneObjectLayer、mSceneObjects列表
+	void UpdateObjectTransparentOpaqueList();
+
 	void RecordPrevFrame(const GGiGameTimer* gt);
 	void OnKeyboardInput(const GGiGameTimer* gt);
 	void UpdateGui(const GGiGameTimer* gt);
