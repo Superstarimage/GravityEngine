@@ -286,17 +286,212 @@ void GDxRenderer::Draw(const GGiGameTimer* gt)
 		GDxGpuProfiler::GetGpuProfiler().EndGpuProfile("G-Buffer Pass");
 	}
 
-	// Modified by Ssi:
-	// Transparent Pass
-	{
-		// Modified by Ssi:
-		mCommandList->SetPipelineState(mPSOs["Transparent"].Get());
-		auto objectCB = mCurrFrameResource->ObjectCB->Resource();
-		mCommandList->SetGraphicsRootConstantBufferView(0, objectCB->GetGPUVirtualAddress()); // 绑定根参数符
+	//// Sky Pass
+	//{
+	//	GDxGpuProfiler::GetGpuProfiler().StartGpuProfile("Sky Pass");
 
-		// Modified by Ssi: 绘制Tranparent场景物体
-		DrawSceneObjects(mCommandList.Get(), RenderLayer::Transparent, true, true, false);
-	}
+	//	mCommandList->RSSetViewports(1, &(mRtvHeaps["LightPass"]->mRtv[0]->mViewport));
+	//	mCommandList->RSSetScissorRects(1, &(mRtvHeaps["LightPass"]->mRtv[0]->mScissorRect));
+
+	//	mCommandList->SetGraphicsRootSignature(mRootSignatures["Sky"].Get());
+
+	//	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mRtvHeaps["LightPass"]->mRtv[0]->mResource.Get(),
+	//		D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+	//	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mRtvHeaps["GBuffer"]->mRtv[mVelocityBufferSrvIndex - mGBufferSrvIndex]->mResource.Get(),
+	//		D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+	//	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(),
+	//		D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+
+	//	D3D12_CPU_DESCRIPTOR_HANDLE skyRtvs[2] =
+	//	{
+	//		mRtvHeaps["LightPass"]->mRtvHeap.handleCPU(0),
+	//		mRtvHeaps["GBuffer"]->mRtvHeap.handleCPU(mVelocityBufferSrvIndex - mGBufferSrvIndex)
+	//	};
+	//	mCommandList->OMSetRenderTargets(2, skyRtvs, false, &DepthStencilView());
+
+	//	auto passCB = mCurrFrameResource->SkyCB->Resource();
+	//	mCommandList->SetGraphicsRootConstantBufferView(1, passCB->GetGPUVirtualAddress());
+
+	//	// Sky cubemap SRV.
+	//	mCommandList->SetGraphicsRootDescriptorTable(2, GetGpuSrv(mSkyTexHeapIndex));
+	//	//mCommandList->SetGraphicsRootDescriptorTable(2, GetGpuSrv(mIblIndex + 4)); //Irradiance cubemap debug.
+
+	//	mCommandList->SetPipelineState(mPSOs["Sky"].Get());
+	//	DrawSceneObjects(mCommandList.Get(), RenderLayer::Sky, true, false);
+
+	//	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mRtvHeaps["LightPass"]->mRtv[0]->mResource.Get(),
+	//		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+
+	//	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mRtvHeaps["GBuffer"]->mRtv[mVelocityBufferSrvIndex - mGBufferSrvIndex]->mResource.Get(),
+	//		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+
+	//	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(),
+	//		D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+
+	//	GDxGpuProfiler::GetGpuProfiler().EndGpuProfile("Sky Pass");
+	//}
+
+	//// Modified by Ssi:
+	//// Transparent Pass
+	//{
+	//	GDxGpuProfiler::GetGpuProfiler().StartGpuProfile("Transparent Pass");
+
+	//	mCommandList->RSSetViewports(1, &(mRtvHeaps["Transparent"]->mRtv[0]->mViewport));
+	//	mCommandList->RSSetScissorRects(1, &(mRtvHeaps["Transparent"]->mRtv[0]->mScissorRect));
+
+	//	mCommandList->SetGraphicsRootSignature(mRootSignatures["Transparent"].Get());
+
+	//	mCommandList->SetPipelineState(mPSOs["Transparent"].Get());
+
+
+	//	UINT objCBByteSize = GDxUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+	//	auto objectCB = mCurrFrameResource->ObjectCB->Resource();
+	//	// Modified by Ssi:
+	//	mCommandList->SetGraphicsRootConstantBufferView(0, objectCB->GetGPUVirtualAddress()); // 绑定根参数符
+
+	//	auto passCB = mCurrFrameResource->PassCB->Resource();
+	//	mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
+
+	//	//mCommandList->SetGraphicsRootDescriptorTable(2, mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+	//	mCommandList->SetGraphicsRootDescriptorTable(3, GetGpuSrv(mTextrueHeapIndex));
+
+	//	matBuffer = mCurrFrameResource->MaterialBuffer->Resource();
+	//	mCommandList->SetGraphicsRootShaderResourceView(4, matBuffer->GetGPUVirtualAddress());
+
+	//	mCommandList->OMSetStencilRef(1);
+
+	//	// Indicate a state transition on the resource usage.
+	//	for (size_t i = 0; i < mRtvHeaps["GBuffer"]->mRtv.size(); i++)
+	//	{
+	//		mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mRtvHeaps["Transparent"]->mRtv[i]->mResource.Get(),
+	//			D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+	//		// Clear the back buffer.
+	//		DirectX::XMVECTORF32 clearColor = { mRtvHeaps["Transparent"]->mRtv[i]->mProperties.mClearColor[0],
+	//		mRtvHeaps["Transparent"]->mRtv[i]->mProperties.mClearColor[1],
+	//		mRtvHeaps["Transparent"]->mRtv[i]->mProperties.mClearColor[2],
+	//		mRtvHeaps["Transparent"]->mRtv[i]->mProperties.mClearColor[3]
+	//		};
+
+	//		// WE ALREADY WROTE THE DEPTH INFO TO THE DEPTH BUFFER IN DrawNormalsAndDepth,
+	//		// SO DO NOT CLEAR DEPTH.
+	//		mCommandList->ClearRenderTargetView(mRtvHeaps["Transparent"]->mRtvHeap.handleCPU((UINT)i), clearColor, 0, nullptr);
+	//	}
+
+	//	// Specify the buffers we are going to render to.
+	//	//mCommandList->OMSetRenderTargets(mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors, &(mRtvHeaps["GBuffer"]->mRtvHeap.hCPUHeapStart), true, &DepthStencilView());
+	//	mCommandList->OMSetRenderTargets(mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors, &(mRtvHeaps["GBuffer"]->mRtvHeap.hCPUHeapStart), true, &DepthStencilView());
+	//	
+	//	// Modified by Ssi: 绘制Tranparent场景物体
+	//	// For each render item...
+	//	// DrawSceneObjects(mCommandList.Get(), RenderLayer::Deferred, true, true, true);
+	//	DrawSceneObjects(mCommandList.Get(), RenderLayer::Transparent, true, true, false);
+
+	//	for (size_t i = 0; i < mRtvHeaps["GBuffer"]->mRtv.size(); i++)
+	//	{
+	//		mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mRtvHeaps["GBuffer"]->mRtv[i]->mResource.Get(),
+	//			D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+	//	}
+
+	//	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(),
+	//		D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+
+	//	
+
+
+	//	 //// Modified by Ssi:
+	//	 //mCommandList->SetPipelineState(mPSOs["Transparent"].Get());
+	//	 //auto objectCB = mCurrFrameResource->ObjectCB->Resource();
+	//	 //mCommandList->SetGraphicsRootConstantBufferView(0, objectCB->GetGPUVirtualAddress()); // 绑定根参数符
+
+	//	 //// Modified by Ssi: 绘制Tranparent场景物体
+	//	 //DrawSceneObjects(mCommandList.Get(), RenderLayer::Transparent, true, true, false);
+
+	//	GDxGpuProfiler::GetGpuProfiler().EndGpuProfile("Transparent Pass");
+	//}
+
+	//// Modified by Ssi:
+	//// Transparent Pass
+	//{
+	//GDxGpuProfiler::GetGpuProfiler().StartGpuProfile("Transparent Pass");
+
+	//mCommandList->RSSetViewports(1, &(mRtvHeaps["Transparent"]->mRtv[0]->mViewport));
+	//mCommandList->RSSetScissorRects(1, &(mRtvHeaps["Transparent"]->mRtv[0]->mScissorRect));
+
+	//mCommandList->SetGraphicsRootSignature(mRootSignatures["Transparent"].Get());
+
+	//mCommandList->SetPipelineState(mPSOs["Transparent"].Get());
+
+
+	//UINT objCBByteSize = GDxUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+	//auto objectCB = mCurrFrameResource->ObjectCB->Resource();
+	//// Modified by Ssi:
+	//mCommandList->SetGraphicsRootConstantBufferView(0, objectCB->GetGPUVirtualAddress()); // 绑定根参数符
+
+	//auto passCB = mCurrFrameResource->PassCB->Resource();
+	//mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
+
+	////mCommandList->SetGraphicsRootDescriptorTable(2, mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+	//mCommandList->SetGraphicsRootDescriptorTable(3, GetGpuSrv(mTextrueHeapIndex));
+
+	//// matBuffer = mCurrFrameResource->MaterialBuffer->Resource();
+	//mCommandList->SetGraphicsRootShaderResourceView(4, matBuffer->GetGPUVirtualAddress());
+
+	//mCommandList->OMSetStencilRef(1);
+
+	//// Indicate a state transition on the resource usage.
+	//for (size_t i = 0; i < mRtvHeaps["Transparent"]->mRtv.size(); i++)
+	//{
+	//	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mRtvHeaps["Transparent"]->mRtv[0]->mResource.Get(),
+	//		D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+	//	// Clear the back buffer.
+	//	DirectX::XMVECTORF32 clearColor = { mRtvHeaps["Transparent"]->mRtv[0]->mProperties.mClearColor[0],
+	//	mRtvHeaps["Transparent"]->mRtv[0]->mProperties.mClearColor[1],
+	//	mRtvHeaps["Transparent"]->mRtv[0]->mProperties.mClearColor[2],
+	//	mRtvHeaps["Transparent"]->mRtv[0]->mProperties.mClearColor[3]
+	//	};
+
+	//	// WE ALREADY WROTE THE DEPTH INFO TO THE DEPTH BUFFER IN DrawNormalsAndDepth,
+	//	// SO DO NOT CLEAR DEPTH.
+	//	mCommandList->ClearRenderTargetView(mRtvHeaps["Transparent"]->mRtvHeap.handleCPU((UINT)0), clearColor, 0, nullptr);
+	//}
+
+	//// Specify the buffers we are going to render to.
+	////mCommandList->OMSetRenderTargets(mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors, &(mRtvHeaps["GBuffer"]->mRtvHeap.hCPUHeapStart), true, &DepthStencilView());
+	//mCommandList->OMSetRenderTargets(mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors, &(mRtvHeaps["GBuffer"]->mRtvHeap.hCPUHeapStart), true, &DepthStencilView());
+
+	//// Modified by Ssi: 绘制Tranparent场景物体
+	//// For each render item...
+	//// DrawSceneObjects(mCommandList.Get(), RenderLayer::Deferred, true, true, true);
+	//DrawSceneObjects(mCommandList.Get(), RenderLayer::Transparent, true, true, false);
+
+	//for (size_t i = 0; i < mRtvHeaps["Transparent"]->mRtv.size(); i++)
+	//{
+	//	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mRtvHeaps["Transparent"]->mRtv[0]->mResource.Get(),
+	//		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+	//}
+
+	//mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(),
+	//	D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+
+
+
+
+	////// Modified by Ssi:
+	////mCommandList->SetPipelineState(mPSOs["Transparent"].Get());
+	////auto objectCB = mCurrFrameResource->ObjectCB->Resource();
+	////mCommandList->SetGraphicsRootConstantBufferView(0, objectCB->GetGPUVirtualAddress()); // 绑定根参数符
+
+	////// Modified by Ssi: 绘制Tranparent场景物体
+	////DrawSceneObjects(mCommandList.Get(), RenderLayer::Transparent, true, true, false);
+
+	//GDxGpuProfiler::GetGpuProfiler().EndGpuProfile("Transparent Pass");
+	//}
+
+
 
 	// Depth Downsample Pass
 	{
@@ -334,6 +529,7 @@ void GDxRenderer::Draw(const GGiGameTimer* gt)
 
 		GDxGpuProfiler::GetGpuProfiler().EndGpuProfile("Depth Downsample Pass");
 	}
+
 
 	// Tile/Cluster Pass
 	{
@@ -430,6 +626,7 @@ void GDxRenderer::Draw(const GGiGameTimer* gt)
 		GDxGpuProfiler::GetGpuProfiler().EndGpuProfile("SDF Tile Pass");
 	}
 
+
 	// GTAO Raw Pass
 	{
 		GDxGpuProfiler::GetGpuProfiler().StartGpuProfile("GTAO");
@@ -502,6 +699,8 @@ void GDxRenderer::Draw(const GGiGameTimer* gt)
 
 		//GDxGpuProfiler::GetGpuProfiler().EndGpuProfile("GTAO Raw Pass");
 	}
+
+
 
 	// GTAO Temporal Pass
 	{
@@ -657,6 +856,8 @@ void GDxRenderer::Draw(const GGiGameTimer* gt)
 		GDxGpuProfiler::GetGpuProfiler().EndGpuProfile("GTAO");
 #endif
 	}
+
+
 
 #if GTAO_USE_UPSAMPLE
 	// GTAO Upsample Pass
@@ -936,6 +1137,85 @@ void GDxRenderer::Draw(const GGiGameTimer* gt)
 	}
 #endif
 
+	// Modified by Ssi: 添加forward	pass前的备份版本
+	// Transparent Pass
+	{
+		GDxGpuProfiler::GetGpuProfiler().StartGpuProfile("Transparent Pass");
+
+		mCommandList->RSSetViewports(1, &(mRtvHeaps["Transparent"]->mRtv[0]->mViewport));
+		mCommandList->RSSetScissorRects(1, &(mRtvHeaps["Transparent"]->mRtv[0]->mScissorRect));
+
+		mCommandList->SetGraphicsRootSignature(mRootSignatures["Transparent"].Get());
+
+		mCommandList->SetPipelineState(mPSOs["Transparent"].Get());
+
+
+		UINT objCBByteSize = GDxUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+		auto objectCB = mCurrFrameResource->ObjectCB->Resource();
+		// Modified by Ssi:
+		mCommandList->SetGraphicsRootConstantBufferView(0, objectCB->GetGPUVirtualAddress()); // 绑定根参数符
+
+		auto passCB = mCurrFrameResource->PassCB->Resource();
+		mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
+
+		//mCommandList->SetGraphicsRootDescriptorTable(2, mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+		mCommandList->SetGraphicsRootDescriptorTable(3, GetGpuSrv(mTextrueHeapIndex));
+
+		// matBuffer = mCurrFrameResource->MaterialBuffer->Resource();
+		mCommandList->SetGraphicsRootShaderResourceView(4, matBuffer->GetGPUVirtualAddress());
+
+		mCommandList->OMSetStencilRef(1);
+
+		// Indicate a state transition on the resource usage.
+		for (size_t i = 0; i < mRtvHeaps["Transparent"]->mRtv.size(); i++)
+		{
+			mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mRtvHeaps["Transparent"]->mRtv[0]->mResource.Get(),
+				D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+			// Clear the back buffer.
+			DirectX::XMVECTORF32 clearColor = { mRtvHeaps["Transparent"]->mRtv[0]->mProperties.mClearColor[0],
+			mRtvHeaps["Transparent"]->mRtv[0]->mProperties.mClearColor[1],
+			mRtvHeaps["Transparent"]->mRtv[0]->mProperties.mClearColor[2],
+			mRtvHeaps["Transparent"]->mRtv[0]->mProperties.mClearColor[3]
+			};
+
+			// WE ALREADY WROTE THE DEPTH INFO TO THE DEPTH BUFFER IN DrawNormalsAndDepth,
+			// SO DO NOT CLEAR DEPTH.
+			mCommandList->ClearRenderTargetView(mRtvHeaps["Transparent"]->mRtvHeap.handleCPU((UINT)0), clearColor, 0, nullptr);
+		}
+
+		// Specify the buffers we are going to render to.
+		// mCommandList->OMSetRenderTargets(mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors, &(mRtvHeaps["GBuffer"]->mRtvHeap.hCPUHeapStart), true, &DepthStencilView());
+		mCommandList->OMSetRenderTargets(mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors, &(mRtvHeaps["GBuffer"]->mRtvHeap.hCPUHeapStart), true, &DepthStencilView());
+		// mCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView()); // 将srv设置为渲染目标
+
+
+		// Modified by Ssi: 绘制Tranparent场景物体
+		// For each render item...
+		// DrawSceneObjects(mCommandList.Get(), RenderLayer::Deferred, true, true, true);
+		DrawSceneObjects(mCommandList.Get(), RenderLayer::Transparent, true, true, false);
+
+		for (size_t i = 0; i < mRtvHeaps["Transparent"]->mRtv.size(); i++)
+		{
+			mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mRtvHeaps["Transparent"]->mRtv[0]->mResource.Get(),
+				D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+		}
+
+		//mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(),
+		//	D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+
+
+		//// Modified by Ssi:
+		//mCommandList->SetPipelineState(mPSOs["Transparent"].Get());
+		//auto objectCB = mCurrFrameResource->ObjectCB->Resource();
+		//mCommandList->SetGraphicsRootConstantBufferView(0, objectCB->GetGPUVirtualAddress()); // 绑定根参数符
+
+		//// Modified by Ssi: 绘制Tranparent场景物体
+		//DrawSceneObjects(mCommandList.Get(), RenderLayer::Transparent, true, true, false);
+
+		// GDxGpuProfiler::GetGpuProfiler().EndGpuProfile("Transparent Pass");
+	}
+
 	// Light Pass
 	{
 		GDxGpuProfiler::GetGpuProfiler().StartGpuProfile("Light Pass");
@@ -1128,6 +1408,86 @@ void GDxRenderer::Draw(const GGiGameTimer* gt)
 		GDxGpuProfiler::GetGpuProfiler().EndGpuProfile("TAA Pass");
 	}
 
+	//// Modified by Ssi:
+	//// Transparent Pass
+	//{
+	//	GDxGpuProfiler::GetGpuProfiler().StartGpuProfile("Transparent Pass");
+
+	//	mCommandList->RSSetViewports(1, &(mRtvHeaps["Transparent"]->mRtv[0]->mViewport));
+	//	mCommandList->RSSetScissorRects(1, &(mRtvHeaps["Transparent"]->mRtv[0]->mScissorRect));
+
+	//	mCommandList->SetGraphicsRootSignature(mRootSignatures["Transparent"].Get());
+
+	//	mCommandList->SetPipelineState(mPSOs["Transparent"].Get());
+
+
+	//	UINT objCBByteSize = GDxUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+	//	auto objectCB = mCurrFrameResource->ObjectCB->Resource();
+	//	// Modified by Ssi:
+	//	mCommandList->SetGraphicsRootConstantBufferView(0, objectCB->GetGPUVirtualAddress()); // 绑定根参数符
+
+	//	auto passCB = mCurrFrameResource->PassCB->Resource();
+	//	mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
+
+	//	//mCommandList->SetGraphicsRootDescriptorTable(2, mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+	//	mCommandList->SetGraphicsRootDescriptorTable(3, GetGpuSrv(mTextrueHeapIndex));
+
+	//	// matBuffer = mCurrFrameResource->MaterialBuffer->Resource();
+	//	mCommandList->SetGraphicsRootShaderResourceView(4, matBuffer->GetGPUVirtualAddress());
+
+	//	mCommandList->OMSetStencilRef(1);
+
+	//	// Indicate a state transition on the resource usage.
+	//	for (size_t i = 0; i < mRtvHeaps["Transparent"]->mRtv.size(); i++)
+	//	{
+	//		mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mRtvHeaps["Transparent"]->mRtv[0]->mResource.Get(),
+	//			D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+	//		// Clear the back buffer.
+	//		DirectX::XMVECTORF32 clearColor = { mRtvHeaps["Transparent"]->mRtv[0]->mProperties.mClearColor[0],
+	//		mRtvHeaps["Transparent"]->mRtv[0]->mProperties.mClearColor[1],
+	//		mRtvHeaps["Transparent"]->mRtv[0]->mProperties.mClearColor[2],
+	//		mRtvHeaps["Transparent"]->mRtv[0]->mProperties.mClearColor[3]
+	//		};
+
+	//		// WE ALREADY WROTE THE DEPTH INFO TO THE DEPTH BUFFER IN DrawNormalsAndDepth,
+	//		// SO DO NOT CLEAR DEPTH.
+	//		mCommandList->ClearRenderTargetView(mRtvHeaps["Transparent"]->mRtvHeap.handleCPU((UINT)0), clearColor, 0, nullptr);
+	//	}
+
+	//	// Specify the buffers we are going to render to.
+	//	// mCommandList->OMSetRenderTargets(mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors, &(mRtvHeaps["GBuffer"]->mRtvHeap.hCPUHeapStart), true, &DepthStencilView());
+	//	// mCommandList->OMSetRenderTargets(mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors, &(mRtvHeaps["GBuffer"]->mRtvHeap.hCPUHeapStart), true, &DepthStencilView());
+	//	// mCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView()); // 将srv设置为渲染目标
+
+
+	//	// Modified by Ssi: 绘制Tranparent场景物体
+	//	// For each render item...
+	//	// DrawSceneObjects(mCommandList.Get(), RenderLayer::Deferred, true, true, true);
+	//	DrawSceneObjects(mCommandList.Get(), RenderLayer::Transparent, true, true, false);
+
+	//	for (size_t i = 0; i < mRtvHeaps["Transparent"]->mRtv.size(); i++)
+	//	{
+	//		mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mRtvHeaps["Transparent"]->mRtv[0]->mResource.Get(),
+	//			D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+	//	}
+
+	//	//mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(),
+	//	//	D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+
+
+	//	//// Modified by Ssi:
+	//	//mCommandList->SetPipelineState(mPSOs["Transparent"].Get());
+	//	//auto objectCB = mCurrFrameResource->ObjectCB->Resource();
+	//	//mCommandList->SetGraphicsRootConstantBufferView(0, objectCB->GetGPUVirtualAddress()); // 绑定根参数符
+
+	//	//// Modified by Ssi: 绘制Tranparent场景物体
+	//	//DrawSceneObjects(mCommandList.Get(), RenderLayer::Transparent, true, true, false);
+
+	//	// GDxGpuProfiler::GetGpuProfiler().EndGpuProfile("Transparent Pass");
+	//}
+
+
 	// SSR Depth Unjitter Pass
 	{
 		GDxGpuProfiler::GetGpuProfiler().StartGpuProfile("Screen Space Reflection");
@@ -1168,6 +1528,7 @@ void GDxRenderer::Draw(const GGiGameTimer* gt)
 
 		//GDxGpuProfiler::GetGpuProfiler().EndGpuProfile("SSR Depth Unjitter Pass");
 	}
+
 
 	// SSR HiZ Pass
 	{
@@ -4287,12 +4648,15 @@ void GDxRenderer::BuildRootSignature()
 	// Light pass root signature
 	{
 		//Output
-		CD3DX12_DESCRIPTOR_RANGE rangeUav;
-		rangeUav.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)1, 0);
+		CD3DX12_DESCRIPTOR_RANGE rangeUav; // 创建着色器资源视图格式（SRV）的描述符表（根参数）
+		rangeUav.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)1, 0); // 第二个参数是表中描述符的数量，第三个参数是绑定到的着色器寄存器起始编号
+
+
+		int temp = mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors;
 
 		//G-Buffer inputs
 		CD3DX12_DESCRIPTOR_RANGE range;
-		range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors, 1);
+		range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors, 1); // 4张rtv
 
 		//Depth inputs
 		CD3DX12_DESCRIPTOR_RANGE rangeDepth;
@@ -5311,6 +5675,49 @@ void GDxRenderer::BuildDescriptorHeaps()
 
 		auto depthDownsamplePassUav = std::make_unique<GDxUav>(md3dDevice.Get(), mClientWidth, mClientHeight, GetCpuSrv(mDepthDownsampleSrvIndex), GetGpuSrv(mDepthDownsampleSrvIndex), prop, false, false, false, sizeof(float), elementNum);
 		mUavs["DepthDownsamplePass"] = std::move(depthDownsamplePassUav);
+	}
+
+	// Modified by Ssi: forward pass前的版本
+	// 注意：这里存在BUG，mRtvHeaps["Transparent"]必须在mRtvHeaps["GBuffer"]之前赋值
+	// Build RTV heap and SRV for Transparent pass.
+	{
+		mGBufferSrvIndex = mDepthDownsampleSrvIndex + mUavs["DepthDownsamplePass"]->GetSize();
+		mVelocityBufferSrvIndex = mGBufferSrvIndex + 2;
+
+		mGBufferAlbedoSrvIndexOffert = 0;
+		mGBufferNormalSrvIndexOffert = 1;
+		mGBufferVelocitySrvIndexOffert = 2;
+		mGBufferOrmSrvIndexOffert = 3;
+
+		std::vector<DXGI_FORMAT> rtvFormats =
+		{
+			DXGI_FORMAT_R8G8B8A8_UNORM,//Albedo
+			DXGI_FORMAT_R8G8B8A8_SNORM, //Normal
+			//DXGI_FORMAT_R32G32B32A32_FLOAT, //WorldPos
+			DXGI_FORMAT_R16G16_FLOAT, //Velocity
+			DXGI_FORMAT_R8G8B8A8_UNORM //OcclusionRoughnessMetallic
+		};
+		std::vector<std::vector<FLOAT>> rtvClearColor =
+		{
+			{ 0,0,0,0 },
+			{ 0,0,0,0 },
+			//{ 0,0,0,0 },
+			{ 0,0,0,0 },
+			{ 0,0.3f,0,0 }
+		};
+		std::vector<GRtvProperties> propVec;
+		for (size_t i = 0; i < rtvFormats.size(); i++)
+		{
+			GRtvProperties prop;
+			prop.mRtvFormat = rtvFormats[i];
+			prop.mClearColor[0] = rtvClearColor[i][0];
+			prop.mClearColor[1] = rtvClearColor[i][1];
+			prop.mClearColor[2] = rtvClearColor[i][2];
+			prop.mClearColor[3] = rtvClearColor[i][3];
+			propVec.push_back(prop);
+		}
+		auto gBufferRtvHeap = std::make_unique<GDxRtvHeap>(md3dDevice.Get(), mClientWidth, mClientHeight, GetCpuSrv(mGBufferSrvIndex), GetGpuSrv(mGBufferSrvIndex), propVec);
+		mRtvHeaps["Transparent"] = std::move(gBufferRtvHeap);
 	}
 
 	// Build RTV heap and SRV for GBuffers.
@@ -7235,8 +7642,11 @@ void GDxRenderer::BuildPSOs()
 		skyPsoDesc.InputLayout.pInputElementDescs = GDxInputLayout::DefaultLayout;
 		skyPsoDesc.InputLayout.NumElements = _countof(GDxInputLayout::DefaultLayout);
 		skyPsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		//skyPsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		
+		// Modified by Ssi:
+		// skyPsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		skyPsoDesc.BlendState = skyBlendState;
+		
 		//skyPsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 		//skyPsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 		//skyPsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
@@ -7335,7 +7745,7 @@ void GDxRenderer::BuildPSOs()
 		ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&prefilterPsoDesc, IID_PPV_ARGS(&mPSOs["Prefilter"])));
 	}
 
-	// Modified by Ssi: 
+	// Modified by Ssi: 添加forward pass前的备份版本
 	// PSO for transpatent objects
 	{
 		D3D12_DEPTH_STENCIL_DESC transparentDSD;
@@ -7368,7 +7778,6 @@ void GDxRenderer::BuildPSOs()
 		transparentPsoDesc.pRootSignature = mRootSignatures["Transparent"].Get();
 		//gBufferPsoDesc.pRootSignature = mRootSignatures["Forward"].Get();
 		transparentPsoDesc.DepthStencilState = transparentDSD;
-		transparentPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 
 		// 设置BlendState
 		D3D12_RENDER_TARGET_BLEND_DESC transparencyBlendDesc;
@@ -7383,72 +7792,104 @@ void GDxRenderer::BuildPSOs()
 		transparencyBlendDesc.LogicOp = D3D12_LOGIC_OP_NOOP;
 		transparencyBlendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
-		transparentPsoDesc.BlendState.RenderTarget[0] = transparencyBlendDesc;
-		// gBufferPsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		for (int i = 0; i < (UINT)mRtvHeaps["Transparent"]->mRtv.size(); i++)
+		{
+			transparentPsoDesc.BlendState.RenderTarget[i] = transparencyBlendDesc; // 针对单渲染目标 
+		}
+		
+		// transparentPsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		transparentPsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+		transparentPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE; // 取消裁剪
 		transparentPsoDesc.SampleMask = UINT_MAX;
 		transparentPsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
 		// Modified by Ssi: 渲染目标数量和格式
-		//gBufferPsoDesc.NumRenderTargets = (UINT)mRtvHeaps["GBuffer"]->mRtv.size();
-		//for (size_t i = 0; i < mRtvHeaps["GBuffer"]->mRtv.size(); i++)
-		//{
-		//	gBufferPsoDesc.RTVFormats[i] = mRtvHeaps["GBuffer"]->mRtv[i]->mProperties.mRtvFormat;
-		//}
-		transparentPsoDesc.NumRenderTargets = 1;
-		transparentPsoDesc.RTVFormats[0] = mBackBufferFormat;
+		transparentPsoDesc.NumRenderTargets = (UINT)mRtvHeaps["Transparent"]->mRtv.size();
+		for (size_t i = 0; i < mRtvHeaps["Transparent"]->mRtv.size(); i++)
+		{
+			transparentPsoDesc.RTVFormats[i] = mRtvHeaps["Transparent"]->mRtv[i]->mProperties.mRtvFormat;
+		}
+		/*transparentPsoDesc.NumRenderTargets = 1;
+		transparentPsoDesc.RTVFormats[0] = mBackBufferFormat;*/
 
 		transparentPsoDesc.DSVFormat = mDepthStencilFormat;
 		transparentPsoDesc.SampleDesc.Count = 1;// don't use msaa in deferred rendering.
 		//deferredPSO = sysRM->CreatePSO(StringID("deferredPSO"), descPipelineState);
 		ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&transparentPsoDesc, IID_PPV_ARGS(&mPSOs["Transparent"])));
-
-
-		//D3D12_GRAPHICS_PIPELINE_STATE_DESC transparentPsoDesc;
-
-		////
-		//// PSO for opaque objects.
-		////
-		//ZeroMemory(&transparentPsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-		//transparentPsoDesc.InputLayout.pInputElementDescs = GDxInputLayout::TransparentLayout; // 描述布局
-		//transparentPsoDesc.InputLayout.NumElements = _countof(GDxInputLayout::TransparentLayout);
-		//transparentPsoDesc.pRootSignature = mRootSignatures["Transparent"].Get(); // 根签名
-		//transparentPsoDesc.VS = GDxShaderManager::LoadShader(L"Shaders\\DefaultVS.cso");
-		//transparentPsoDesc.PS = GDxShaderManager::LoadShader(L"Shaders\\DeferredPS.cso");
-		//transparentPsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		//transparentPsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		//transparentPsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-		//transparentPsoDesc.SampleMask = UINT_MAX;
-		//transparentPsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		//transparentPsoDesc.NumRenderTargets = 1;
-		//transparentPsoDesc.RTVFormats[0] = mBackBufferFormat;
-		//transparentPsoDesc.SampleDesc.Count = 1; // m4xMsaaState ? 4 : 1;
-		//transparentPsoDesc.SampleDesc.Quality = 0; // m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
-		//transparentPsoDesc.DSVFormat = mDepthStencilFormat;
-		//// ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&mPSOs["opaque"])));
-		//ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&transparentPsoDesc, IID_PPV_ARGS(&mPSOs["transparent"])));
-
-		//
-		// PSO for transparent objects
-		//
-
-		// D3D12_GRAPHICS_PIPELINE_STATE_DESC transparentPsoDesc = transparencyBlendDesc;
-
-		/*D3D12_RENDER_TARGET_BLEND_DESC transparencyBlendDesc;
-		transparencyBlendDesc.BlendEnable = true;
-		transparencyBlendDesc.LogicOpEnable = false;
-		transparencyBlendDesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
-		transparencyBlendDesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-		transparencyBlendDesc.BlendOp = D3D12_BLEND_OP_ADD;
-		transparencyBlendDesc.SrcBlendAlpha = D3D12_BLEND_ONE;
-		transparencyBlendDesc.DestBlendAlpha = D3D12_BLEND_ZERO;
-		transparencyBlendDesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
-		transparencyBlendDesc.LogicOp = D3D12_LOGIC_OP_NOOP;
-		transparencyBlendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-
-		transparentPsoDesc.BlendState.RenderTarget[0] = transparencyBlendDesc;
-		ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&transparentPsoDesc, IID_PPV_ARGS(&mPSOs["transparent"])));*/
 	}
+
+	//// Modified by Ssi: forward pass实现
+	//// PSO for transpatent objects
+	//{
+	//	D3D12_DEPTH_STENCIL_DESC transparentDSD;
+	//	transparentDSD.DepthEnable = true;
+	//	transparentDSD.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	//#if USE_REVERSE_Z
+	//	transparentDSD.DepthFunc = D3D12_COMPARISON_FUNC_GREATER;
+	//#else
+	//	transparentDSD.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+	//#endif
+	//	transparentDSD.StencilEnable = true;
+	//	transparentDSD.StencilReadMask = 0xff;
+	//	transparentDSD.StencilWriteMask = 0xff;
+	//	transparentDSD.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	//	transparentDSD.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	//	transparentDSD.FrontFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
+	//	transparentDSD.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	//	// We are not rendering backfacing polygons, so these settings do not matter. 
+	//	transparentDSD.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	//	transparentDSD.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	//	transparentDSD.BackFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
+	//	transparentDSD.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+
+	//	D3D12_GRAPHICS_PIPELINE_STATE_DESC transparentPsoDesc;
+	//	ZeroMemory(&transparentPsoDesc, sizeof(transparentPsoDesc));
+	//	transparentPsoDesc.VS = GDxShaderManager::LoadShader(L"Shaders\\DefaultVS.cso");
+	//	transparentPsoDesc.PS = GDxShaderManager::LoadShader(L"Shaders\\TransparentPS.cso");
+	//	transparentPsoDesc.InputLayout.pInputElementDescs = GDxInputLayout::DefaultLayout;
+	//	transparentPsoDesc.InputLayout.NumElements = _countof(GDxInputLayout::DefaultLayout);
+	//	transparentPsoDesc.pRootSignature = mRootSignatures["Transparent"].Get();
+	//	//gBufferPsoDesc.pRootSignature = mRootSignatures["Forward"].Get();
+	//	transparentPsoDesc.DepthStencilState = transparentDSD;
+
+	//	// 设置BlendState
+	//	D3D12_RENDER_TARGET_BLEND_DESC transparencyBlendDesc;
+	//	transparencyBlendDesc.BlendEnable = true;
+	//	transparencyBlendDesc.LogicOpEnable = false;
+	//	transparencyBlendDesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	//	transparencyBlendDesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	//	transparencyBlendDesc.BlendOp = D3D12_BLEND_OP_ADD;
+	//	transparencyBlendDesc.SrcBlendAlpha = D3D12_BLEND_ONE; //  D3D12_BLEND_INV_SRC_ALPHA;
+	//	transparencyBlendDesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+	//	transparencyBlendDesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	//	transparencyBlendDesc.LogicOp = D3D12_LOGIC_OP_NOOP;
+	//	transparencyBlendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+	//	for (int i = 0; i < (UINT)mRtvHeaps["Transparent"]->mRtv.size(); i++)
+	//	{
+	//		transparentPsoDesc.BlendState.RenderTarget[i] = transparencyBlendDesc; 
+	//	}
+
+	//	// transparentPsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	//	transparentPsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	//	transparentPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE; // 取消裁剪
+	//	transparentPsoDesc.SampleMask = UINT_MAX;
+	//	transparentPsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+	//	// Modified by Ssi: 渲染目标数量和格式
+	//	transparentPsoDesc.NumRenderTargets = (UINT)mRtvHeaps["Transparent"]->mRtv.size();
+	//	for (size_t i = 0; i < mRtvHeaps["Transparent"]->mRtv.size(); i++)
+	//	{
+	//		transparentPsoDesc.RTVFormats[i] = mRtvHeaps["Transparent"]->mRtv[i]->mProperties.mRtvFormat;
+	//	}
+	//	/*transparentPsoDesc.NumRenderTargets = 1;
+	//	transparentPsoDesc.RTVFormats[0] = mBackBufferFormat;*/
+
+	//	transparentPsoDesc.DSVFormat = mDepthStencilFormat;
+	//	transparentPsoDesc.SampleDesc.Count = 1;// don't use msaa in deferred rendering.
+	//	//deferredPSO = sysRM->CreatePSO(StringID("deferredPSO"), descPipelineState);
+	//	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&transparentPsoDesc, IID_PPV_ARGS(&mPSOs["Transparent"])));
+	//}
 
 }
 

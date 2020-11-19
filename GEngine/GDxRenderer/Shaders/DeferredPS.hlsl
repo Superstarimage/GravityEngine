@@ -73,6 +73,5 @@ PixelOutput main(VertexOutput input)// : SV_TARGET
 	float metal = ormFromTexture.b;
 	output.occlusionRoughnessMetallic = float4(0, roughness, metal, 0);
 	output.albedo.a = input.linearZ;
-	// output.albedo.a = 0.1f;
 	return output;
 }
