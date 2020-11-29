@@ -50,7 +50,7 @@ struct LightList
 	uint NumSpotlights;
 };
 
-cbuffer externalData : register(b0)
+cbuffer externalData : register(b2) // b0
 {
 	DirectionalLight dirLight[MAX_DIRECTIONAL_LIGHT_NUM];
 	PointLight pointLight[MAX_POINT_LIGHT_NUM];
@@ -59,6 +59,7 @@ cbuffer externalData : register(b0)
 	int dirLightCount;
 }
 
+// 光源距离衰减系数
 float Attenuate(float3 position, float range, float3 worldPos)
 {
 #if UNREAL_LIGHT_ATTENUATION
@@ -192,6 +193,34 @@ float3 DirectPBR(float lightIntensity, float3 lightColor, float3 toLight, float3
 	float NdotL = max(dot(normal, toLight), 0.0);
 
 	return (diffBRDF + specBRDF) * NdotL * lightIntensity * lightColor.rgb * shadowAmount;
+}
+
+float3 DirectPBR_diff(float lightIntensity, float3 lightColor, float3 toLight, float3 normal, float3 worldPos, float3 camPos, float roughness, float metalness, float3 albedo, float shadowAmount)
+{
+	float3 f0 = lerp(F0_NON_METAL.rrr, albedo.rgb, metalness);
+	float ao = 1.0f;
+	float3 toCam = normalize(camPos - worldPos);
+	float3 kS = float3(0.f, 0.f, 0.f);
+	float3 specBRDF = CookTorrance(normal, toLight, toCam, roughness, metalness, f0, kS);
+	float3 diffBRDF = LambertDiffuse(kS, albedo, metalness);
+
+	float NdotL = max(dot(normal, toLight), 0.0);
+
+	return (diffBRDF) * NdotL * lightIntensity * lightColor.rgb * shadowAmount;
+}
+
+float3 DirectPBR_spec(float lightIntensity, float3 lightColor, float3 toLight, float3 normal, float3 worldPos, float3 camPos, float roughness, float metalness, float3 albedo, float shadowAmount)
+{
+	float3 f0 = lerp(F0_NON_METAL.rrr, albedo.rgb, metalness);
+	float ao = 1.0f;
+	float3 toCam = normalize(camPos - worldPos);
+	float3 kS = float3(0.f, 0.f, 0.f);
+	float3 specBRDF = CookTorrance(normal, toLight, toCam, roughness, metalness, f0, kS);
+	float3 diffBRDF = LambertDiffuse(kS, albedo, metalness);
+
+	float NdotL = max(dot(normal, toLight), 0.0);
+
+	return (specBRDF)* NdotL * lightIntensity * lightColor.rgb * shadowAmount;
 }
 
 #endif

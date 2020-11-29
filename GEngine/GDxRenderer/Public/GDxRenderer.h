@@ -281,6 +281,10 @@ protected:
 	UINT mScreenSpaceShadowPassSrvIndex = 0;
 	UINT mSSShadowTemporalSrvIndex = 0;
 	UINT mGtaoSrvIndex = 0;
+
+	// Modified by Ssi:
+	UINT mForwardTransparentPassSrvIndex = 0;
+
 	UINT mLightPassSrvIndex = 0;
 	UINT mSkyPassSrvIndex = 0;
 	UINT mTaaPassSrvIndex = 0;

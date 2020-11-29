@@ -14,79 +14,41 @@ struct Light
 	float SpotPower;    // spot light only
 };
 
-struct VertexInput
+struct VertexIn
 {
-	float3 pos		: POSITION;
-	float2 uv		: TEXCOORD;
-	float3 normal	: NORMAL;
-	float3 tangent	: TANGENT;
+	float3 PosL    : POSITION;
+	float2 TexC    : TEXCOORD;
+	float3 NormalL : NORMAL;
 };
 
-struct VertexOutput
+struct VertexOut
 {
-	float4	pos			: SV_POSITION;
-	float2	uv			: TEXCOORD;
-	float3	normal		: NORMAL;
-	float3	tangent		: TANGENT;
-	//float3 worldPos	: POSITION0;
-	float4	curPos		: POSITION0;
-	float4	prevPos		: POSITION1;
-	float	linearZ		: LINEARZ;
-	float4	shadowPos	: SHADOWPOS;
+	float4 PosH    : SV_POSITION;
+	float3 PosW    : POSITION;
+	float3 NormalW : NORMAL;
+	float2 TexC    : TEXCOORD;
 };
 
-// Compute jittered view projection matrix.
-/*
-float4x4 GetJitteredViewProj()
+VertexOut main(VertexIn vin)
 {
-	uint subsampIndex = gFrameCount % SAMPLE_COUNT;
-
-	float4x4 jitteredProj = gProj;
-	jitteredProj[2][0] += Halton_2_3[subsampIndex].x * gInvRenderTargetSize.x * JitterDistance;
-	jitteredProj[2][1] += Halton_2_3[subsampIndex].y * gInvRenderTargetSize.y * JitterDistance;
-
-	float4x4 jitteredViewProj = mul(gView, jitteredProj);
-
-	return jitteredViewProj;
-}
-*/
-
-float2 ProjectionConstants(float gNearZ, float gFarZ)
-{
-	float2 projectionConstants;
-	projectionConstants.x = gFarZ / (gFarZ - gNearZ);
-	projectionConstants.y = (-gFarZ * gNearZ) / (gFarZ - gNearZ);
-	return projectionConstants;
-}
-
-float LinearZ(float4 outPosition)
-{
-	float2 projectionConstants = ProjectionConstants(gNearZ, gFarZ);
-	float depth = outPosition.z / outPosition.w;
-	float linearZ = projectionConstants.y / (depth - projectionConstants.x);
-	return linearZ;
-}
-
-VertexOutput main(VertexInput input)
-{
-	VertexOutput output;
+	VertexOut vout = (VertexOut)0.0f;
 
 	MaterialData matData = gMaterialData[gMaterialIndex];
 
-	//float4x4 jitteredViewProj = GetJitteredViewProj();
+	// Transform to world space.
+	float4 posW = mul(float4(vin.PosL, 1.0f), gWorld);
+	vout.PosW = posW.xyz;
 
-	float4 worldPos = mul(float4(input.pos, 1.0f), gWorld);
-	float4 prevWorldPos = mul(float4(input.pos, 1.0f), gPrevWorld);
-	output.curPos = mul(worldPos, gUnjitteredViewProj);
-	output.prevPos = mul(prevWorldPos, gPrevViewProj);
-	float4 texC = float4(input.uv, 0.0f, 1.0f);
-	output.pos = mul(worldPos, gViewProj);
-	output.uv = mul(texC, matData.MatTransform).xy;
-	output.normal = normalize(mul(input.normal, (float3x3)gInvTransWorld));
-	output.tangent = normalize(mul(input.tangent, (float3x3)gInvTransWorld));
-	//output.worldPos = mul(float4(input.pos, 1.0f), gWorld).xyz;
-	output.linearZ = LinearZ(output.pos);
-	output.shadowPos = mul(float4(input.pos, 1.0f), gShadowTransform[gFrameCount % SHADOW_CASCADE_NUM]);
-	//output.ssaoPos = mul(worldPos, gViewProjTex);
-	return output;
+	// Assumes nonuniform scaling; otherwise, need to use inverse-transpose of world matrix.
+	vout.NormalW = mul(vin.NormalL, (float3x3)gWorld);
+
+	// Transform to homogeneous clip space. 齐次裁剪空间
+	vout.PosH = mul(posW, gViewProj);
+
+	// 输出用于在三角形上进行插值的顶点属性
+	// Output vertex attributes for interpolation across triangle.
+	float4 texC = mul(float4(vin.TexC, 0.0f, 1.0f), gTexTransform);
+	vout.TexC = mul(texC, matData.MatTransform).xy;
+
+	return vout;
 }

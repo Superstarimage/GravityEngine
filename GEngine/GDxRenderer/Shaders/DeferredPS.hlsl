@@ -64,7 +64,7 @@ PixelOutput main(VertexOutput input)// : SV_TARGET
 
 	float3 normal = calculateNormalFromMap(normalFromTexture, normalize(input.normal), input.tangent);
 	PixelOutput output;
-	output.albedo = float4(albedoFromTexture, 1.0f);;
+	output.albedo = float4(albedoFromTexture, 1.0f);
 	output.normal = float4(normalize(normal), 1.0f);
 	//output.worldPos = float4(input.worldPos, 0.0f);
 	output.velocity = float2(curPos.x - prevPos.x, curPos.y - prevPos.y);

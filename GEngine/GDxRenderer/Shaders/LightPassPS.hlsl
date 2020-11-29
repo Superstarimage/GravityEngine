@@ -29,20 +29,24 @@
 
 StructuredBuffer<LightList> gLightList : register(t0);
 
-//G-Buffer
+// G-Buffer
 Texture2D gAlbedoTexture			: register(t1);
 Texture2D gNormalTexture			: register(t2);
 Texture2D gVelocityTexture			: register(t3);
 Texture2D gOrmTexture				: register(t4);
 
+// Depth
 Texture2D gDepthBuffer				: register(t5);
 
+// Shadow
 Texture2D gShadowTexture			: register(t6);
 
+// Occlusion
 Texture2D gOcclusionTexture			: register(t7);
 
 #define PREFILTER_MIP_LEVEL 5
 
+// IBL
 TextureCube skyIrradianceTexture	: register(t8);
 Texture2D	brdfLUTTexture			: register(t9);
 TextureCube skyPrefilterTexture[PREFILTER_MIP_LEVEL]	: register(t10);

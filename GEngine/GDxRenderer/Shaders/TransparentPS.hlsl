@@ -2,14 +2,6 @@
 #include "Material.hlsli"
 #include "ObjectCB.hlsli"
 
-cbuffer blend_objectConstants : register(b0) 
-{
-	float4x4 World;		  // 物体的变换矩阵
-	float4x4 PrevWorld;	  // 物体上一帧的变换矩阵
-	float4x4 InvTransWorld; // 变换矩阵的逆
-	float4x4 TexTransform;  // 贴图的变换矩阵
-	float blend_alpha; // blend技术实现透明的alpha值；手动修改之来调节透明物体的透明度
-}
 // PassConstants blend_objectConstants; register(b2);
 
 struct VertexOutput

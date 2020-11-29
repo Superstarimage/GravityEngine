@@ -289,6 +289,8 @@
     <FxCompile Include="Shaders\DofPostfilterPS.hlsl" />
     <FxCompile Include="Shaders\DofPrefilterPS.hlsl" />
     <FxCompile Include="Shaders\TransparentPS.hlsl" />
+    <FxCompile Include="Shaders\ForwardPS.hlsl" />
+    <FxCompile Include="Shaders\ForwardVS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Lighting.hlsli" />
