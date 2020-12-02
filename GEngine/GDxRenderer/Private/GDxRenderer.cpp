@@ -1240,25 +1240,25 @@ void GDxRenderer::Draw(const GGiGameTimer* gt)
 
 		mCommandList->SetGraphicsRootDescriptorTable(5, mUavs["TileClusterPass"]->GetGpuSrv()); // 筛选后的光源
 
-		mCommandList->SetGraphicsRootDescriptorTable(6, mRtvHeaps["GBuffer"]->GetSrvGpuStart());
+		// mCommandList->SetGraphicsRootDescriptorTable(6, mRtvHeaps["GBuffer"]->GetSrvGpuStart());
 
-		mCommandList->SetGraphicsRootDescriptorTable(7, GetGpuSrv(mDepthBufferSrvIndex));
+		mCommandList->SetGraphicsRootDescriptorTable(6, GetGpuSrv(mDepthBufferSrvIndex));
 
-#if USE_PCSS_TEMPORAL
-		mCommandList->SetGraphicsRootDescriptorTable(8, mRtvHeaps["SSShadowTemporalPass"]->GetSrvGpu(2));
-#else
-		mCommandList->SetGraphicsRootDescriptorTable(8, mRtvHeaps["ScreenSpaceShadowPass"]->GetSrvGpu(0));
-#endif
+//#if USE_PCSS_TEMPORAL
+//		mCommandList->SetGraphicsRootDescriptorTable(8, mRtvHeaps["SSShadowTemporalPass"]->GetSrvGpu(2));
+//#else
+//		mCommandList->SetGraphicsRootDescriptorTable(8, mRtvHeaps["ScreenSpaceShadowPass"]->GetSrvGpu(0));
+//#endif
 
-		mCommandList->SetGraphicsRootDescriptorTable(9, GetGpuSrv(mIblIndex));
+		// mCommandList->SetGraphicsRootDescriptorTable(9, GetGpuSrv(mIblIndex));
 
-#if GTAO_USE_UPSAMPLE
-		mCommandList->SetGraphicsRootDescriptorTable(10, mRtvHeaps["GTAO"]->GetSrvGpu(mGtaoUpsampleSrvIndexOffset));
-#else
-		mCommandList->SetGraphicsRootDescriptorTable(10, mRtvHeaps["GTAO"]->GetSrvGpu(mGtaoBlurYSrvIndexOffset));
-#endif
+//#if GTAO_USE_UPSAMPLE
+//		mCommandList->SetGraphicsRootDescriptorTable(10, mRtvHeaps["GTAO"]->GetSrvGpu(mGtaoUpsampleSrvIndexOffset));
+//#else
+//		mCommandList->SetGraphicsRootDescriptorTable(10, mRtvHeaps["GTAO"]->GetSrvGpu(mGtaoBlurYSrvIndexOffset));
+//#endif
 
-		mCommandList->SetGraphicsRootDescriptorTable(11, GetGpuSrv(mTextrueHeapIndex)); // TextureMaps，PS接收 t0
+		mCommandList->SetGraphicsRootDescriptorTable(7, GetGpuSrv(mTextrueHeapIndex)); // TextureMaps，PS接收 t0
 
 		// Clear RT.
 		DirectX::XMVECTORF32 clearColor = { mRtvHeaps["ForwardTransparentPass"]->mRtv[0]->mProperties.mClearColor[0],
@@ -4459,7 +4459,7 @@ void GDxRenderer::BuildRootSignature()
 
 	// Light pass root signature
 	{
-		//Output
+		//LightList
 		CD3DX12_DESCRIPTOR_RANGE rangeUav; // 创建着色器资源视图格式（SRV）的描述符表（根参数）
 		rangeUav.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)1, 0); // 第二个参数是表中描述符的数量，第三个参数是绑定到的着色器寄存器起始编号
 
@@ -5287,52 +5287,52 @@ void GDxRenderer::BuildRootSignature()
 	// Modified by Ssi:
 	// ForwardTransparent root signature
 	{
-		//Output
+		//LightList
 		CD3DX12_DESCRIPTOR_RANGE rangeUav; // 创建着色器资源视图格式（SRV）的描述符表（根参数）
 		rangeUav.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)1, 0); // 第二个参数是表中描述符的数量，第三个参数是绑定到的着色器寄存器起始编号
 
 		int temp = mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors;
 
-		//G-Buffer inputs
-		CD3DX12_DESCRIPTOR_RANGE range;
-		range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors, 1); // 4张rtv
+		////G-Buffer inputs
+		//CD3DX12_DESCRIPTOR_RANGE range;
+		//range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors, 1); // 4张rtv
 
 		//Depth inputs
 		CD3DX12_DESCRIPTOR_RANGE rangeDepth;
-		rangeDepth.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)1, mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors + 1);
+		rangeDepth.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)1, 1);
 
-		//Shadow inputs
-		CD3DX12_DESCRIPTOR_RANGE rangeShadow;
-		rangeShadow.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)1, mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors + 2);
+		////Shadow inputs
+		//CD3DX12_DESCRIPTOR_RANGE rangeShadow;
+		//rangeShadow.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)1, mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors + 2);
 
-		//Shadow inputs
-		CD3DX12_DESCRIPTOR_RANGE rangeOcclusion;
-		rangeOcclusion.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)1, mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors + 3);
+		////Occlusion inputs
+		//CD3DX12_DESCRIPTOR_RANGE rangeOcclusion;
+		//rangeOcclusion.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)1, mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors + 3);
 
-		//IBL inputs
-		CD3DX12_DESCRIPTOR_RANGE rangeIBL;
-		rangeIBL.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)mPrefilterLevels + (UINT)1 + (UINT)1, mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors + 4);
+		////IBL inputs
+		//CD3DX12_DESCRIPTOR_RANGE rangeIBL;
+		//rangeIBL.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, (UINT)mPrefilterLevels + (UINT)1 + (UINT)1, mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors + 4);
 
 		//Texture inputs
 		CD3DX12_DESCRIPTOR_RANGE rangeTex;
-		rangeTex.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, MAX_TEXTURE_NUM, mRtvHeaps["GBuffer"]->mRtvHeap.HeapDesc.NumDescriptors + 4 + (UINT)mPrefilterLevels + (UINT)1 + (UINT)1);
+		rangeTex.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, MAX_TEXTURE_NUM, 2);
 
-		CD3DX12_ROOT_PARAMETER gLightPassRootParameters[12];
+		CD3DX12_ROOT_PARAMETER gLightPassRootParameters[8];
 		gLightPassRootParameters[0].InitAsConstantBufferView(0); // 寄存器b0  objectCB     自动绑定
 		gLightPassRootParameters[1].InitAsConstants(1, 0, 1);    // 寄存器b01 perSubmeshCB 自动绑定
 		gLightPassRootParameters[2].InitAsConstantBufferView(1); // 寄存器b1  mainPassCB
-		gLightPassRootParameters[3].InitAsConstantBufferView(2); // 寄存器b2  lightCB
+		gLightPassRootParameters[3].InitAsConstantBufferView(2); // 寄存器b2  lightCB GDxFrameResource.h
 		gLightPassRootParameters[4].InitAsShaderResourceView(0, 1); // 寄存器t01 MaterialData
-		gLightPassRootParameters[5].InitAsDescriptorTable(1, &rangeUav, D3D12_SHADER_VISIBILITY_ALL);
-		gLightPassRootParameters[6].InitAsDescriptorTable(1, &range, D3D12_SHADER_VISIBILITY_ALL);
-		gLightPassRootParameters[7].InitAsDescriptorTable(1, &rangeDepth, D3D12_SHADER_VISIBILITY_ALL);
-		gLightPassRootParameters[8].InitAsDescriptorTable(1, &rangeShadow, D3D12_SHADER_VISIBILITY_ALL);
-		gLightPassRootParameters[9].InitAsDescriptorTable(1, &rangeIBL, D3D12_SHADER_VISIBILITY_ALL);
-		gLightPassRootParameters[10].InitAsDescriptorTable(1, &rangeOcclusion, D3D12_SHADER_VISIBILITY_ALL);
-		gLightPassRootParameters[11].InitAsDescriptorTable(1, &rangeTex, D3D12_SHADER_VISIBILITY_ALL); // textureMaps t0
+		gLightPassRootParameters[5].InitAsDescriptorTable(1, &rangeUav, D3D12_SHADER_VISIBILITY_ALL); // lightlist
+		// gLightPassRootParameters[6].InitAsDescriptorTable(1, &range, D3D12_SHADER_VISIBILITY_ALL);
+		gLightPassRootParameters[6].InitAsDescriptorTable(1, &rangeDepth, D3D12_SHADER_VISIBILITY_ALL);
+		// gLightPassRootParameters[8].InitAsDescriptorTable(1, &rangeShadow, D3D12_SHADER_VISIBILITY_ALL);
+		// gLightPassRootParameters[9].InitAsDescriptorTable(1, &rangeIBL, D3D12_SHADER_VISIBILITY_ALL);
+		// gLightPassRootParameters[10].InitAsDescriptorTable(1, &rangeOcclusion, D3D12_SHADER_VISIBILITY_ALL);
+		gLightPassRootParameters[7].InitAsDescriptorTable(1, &rangeTex, D3D12_SHADER_VISIBILITY_ALL); // textureMaps t0
 
 		// A root signature is an array of root parameters.
-		CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(12, gLightPassRootParameters,
+		CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(8, gLightPassRootParameters,
 			0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 		CD3DX12_STATIC_SAMPLER_DESC StaticSamplers[2];
@@ -7763,7 +7763,7 @@ void GDxRenderer::BuildPSOs()
 		descforwardTransparentPSO.InputLayout.pInputElementDescs = GDxInputLayout::DefaultLayout;
 		descforwardTransparentPSO.InputLayout.NumElements = _countof(GDxInputLayout::DefaultLayout);
 		descforwardTransparentPSO.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		// descforwardTransparentPSO.RasterizerState.CullMode = D3D12_CULL_MODE_NONE; // 取消裁剪
+		descforwardTransparentPSO.RasterizerState.CullMode = D3D12_CULL_MODE_NONE; // 取消裁剪
 		descforwardTransparentPSO.NumRenderTargets = 1;
 		descforwardTransparentPSO.RTVFormats[0] = mRtvHeaps["ForwardTransparentPass"]->mRtv[0]->mProperties.mRtvFormat;//light pass output
 		descforwardTransparentPSO.SampleMask = UINT_MAX;

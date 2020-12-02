@@ -417,7 +417,7 @@
 				<item_version>0</item_version>
 				<item class_id="6" tracking_level="0" version="0">
 					<str1>Grid</str1>
-					<str2>Content\Material\Sphere_1.gmat</str2>
+					<str2>Content\Material\MetalGrid.gmat</str2>
 				</item>
 			</OverrideMaterialUniqueName>
 			<MeshUniqueName>Grid</MeshUniqueName>

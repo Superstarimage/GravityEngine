@@ -4,7 +4,7 @@
 <Project class_id="0" tracking_level="0" version="0">
 	<mSkyCubemapUniqueName>Content\Textures\Cubemap\Cubemap_LancellottiChapel.dds</mSkyCubemapUniqueName>
 	<mTextureInfo class_id="1" tracking_level="0" version="0">
-		<count>88</count>
+		<count>100</count>
 		<item_version>0</item_version>
 		<item class_id="2" tracking_level="0" version="0">
 			<UniqueFileName>Content\Models\Rifle_1\Rifle_1_Albedo.png</UniqueFileName>
@@ -63,10 +63,6 @@
 			<bSrgb>1</bSrgb>
 		</item>
 		<item>
-			<UniqueFileName>Content\Textures\Test2\SlateCliffRock_Normal.png</UniqueFileName>
-			<bSrgb>0</bSrgb>
-		</item>
-		<item>
 			<UniqueFileName>Content\Textures\Cerberus_Orm.png</UniqueFileName>
 			<bSrgb>0</bSrgb>
 		</item>
@@ -107,6 +103,34 @@
 			<bSrgb>0</bSrgb>
 		</item>
 		<item>
+			<UniqueFileName>Content\Textures\Test2\DarkTiles_Albedo.png</UniqueFileName>
+			<bSrgb>1</bSrgb>
+		</item>
+		<item>
+			<UniqueFileName>Content\Textures\sphere_2_OcclusionRoughnessMetallic.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
+		</item>
+		<item>
+			<UniqueFileName>Content\Textures\Fireplace_Albedo.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
+		</item>
+		<item>
+			<UniqueFileName>Content\Textures\Test2\DarkTiles_Normal.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
+		</item>
+		<item>
+			<UniqueFileName>Content\Textures\Fireplace_Normal.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
+		</item>
+		<item>
+			<UniqueFileName>Content\Textures\Test2\DarkTiles_Orm.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
+		</item>
+		<item>
+			<UniqueFileName>Content\Textures\Fireplace_Orm.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
+		</item>
+		<item>
 			<UniqueFileName>Content\Textures\Greasy_Pan_Albedo.png</UniqueFileName>
 			<bSrgb>1</bSrgb>
 		</item>
@@ -115,11 +139,11 @@
 			<bSrgb>0</bSrgb>
 		</item>
 		<item>
-			<UniqueFileName>Content\Textures\Test3\BloodyFloor_Albedo.png</UniqueFileName>
-			<bSrgb>1</bSrgb>
+			<UniqueFileName>Content\Textures\Greasy_Pan_Orm.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
 		</item>
 		<item>
-			<UniqueFileName>Content\Textures\Greasy_Pan_Orm.png</UniqueFileName>
+			<UniqueFileName>Content\Textures\Rusted_Iron_Albedo.png</UniqueFileName>
 			<bSrgb>0</bSrgb>
 		</item>
 		<item>
@@ -127,7 +151,19 @@
 			<bSrgb>1</bSrgb>
 		</item>
 		<item>
+			<UniqueFileName>Content\Textures\Rusted_Iron_Normal.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
+		</item>
+		<item>
 			<UniqueFileName>Content\Textures\Test2\BathroomTile_Normal.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
+		</item>
+		<item>
+			<UniqueFileName>Content\Textures\sphere_1_BaseColor.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
+		</item>
+		<item>
+			<UniqueFileName>Content\Textures\Rusted_Iron_Orm.png</UniqueFileName>
 			<bSrgb>0</bSrgb>
 		</item>
 		<item>
@@ -135,15 +171,27 @@
 			<bSrgb>0</bSrgb>
 		</item>
 		<item>
-			<UniqueFileName>Content\Textures\Test2\DarkTiles_Albedo.png</UniqueFileName>
-			<bSrgb>1</bSrgb>
-		</item>
-		<item>
-			<UniqueFileName>Content\Textures\Test2\DarkTiles_Normal.png</UniqueFileName>
+			<UniqueFileName>Content\Textures\sphere_1_Normal.png</UniqueFileName>
 			<bSrgb>0</bSrgb>
 		</item>
 		<item>
-			<UniqueFileName>Content\Textures\Test2\DarkTiles_Orm.png</UniqueFileName>
+			<UniqueFileName>Content\Textures\sphere_1_OcclusionRoughnessMetallic.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
+		</item>
+		<item>
+			<UniqueFileName>Resource\Textures\IBL_BRDF_LUT.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
+		</item>
+		<item>
+			<UniqueFileName>Content\Textures\sphere_2_BaseColor.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
+		</item>
+		<item>
+			<UniqueFileName>Content\Textures\Test2\LayeredRock_Orm.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
+		</item>
+		<item>
+			<UniqueFileName>Content\Textures\sphere_2_Normal.png</UniqueFileName>
 			<bSrgb>0</bSrgb>
 		</item>
 		<item>
@@ -175,14 +223,6 @@
 			<bSrgb>1</bSrgb>
 		</item>
 		<item>
-			<UniqueFileName>Content\Textures\Test3\BeechFloor_Albedo.png</UniqueFileName>
-			<bSrgb>1</bSrgb>
-		</item>
-		<item>
-			<UniqueFileName>Content\Textures\Test2\RedBricks_Orm.png</UniqueFileName>
-			<bSrgb>0</bSrgb>
-		</item>
-		<item>
 			<UniqueFileName>Content\Textures\Test2\Gold_Scuffed_Albedo_boosted.png</UniqueFileName>
 			<bSrgb>1</bSrgb>
 		</item>
@@ -207,10 +247,6 @@
 			<bSrgb>1</bSrgb>
 		</item>
 		<item>
-			<UniqueFileName>Content\Textures\Test2\RedBricks_Normal.png</UniqueFileName>
-			<bSrgb>0</bSrgb>
-		</item>
-		<item>
 			<UniqueFileName>Content\Textures\Test2\MetalGird2_Albedo.png</UniqueFileName>
 			<bSrgb>1</bSrgb>
 		</item>
@@ -223,19 +259,11 @@
 			<bSrgb>1</bSrgb>
 		</item>
 		<item>
-			<UniqueFileName>Content\Textures\Test2\LayeredRock_Normal.png</UniqueFileName>
-			<bSrgb>0</bSrgb>
-		</item>
-		<item>
 			<UniqueFileName>Content\Textures\Test2\SlateCliffRock_Orm.png</UniqueFileName>
 			<bSrgb>0</bSrgb>
 		</item>
 		<item>
-			<UniqueFileName>Content\Textures\Test2\LayeredRock_Orm.png</UniqueFileName>
-			<bSrgb>0</bSrgb>
-		</item>
-		<item>
-			<UniqueFileName>Content\Textures\Test3\BeechFloor_Normal.png</UniqueFileName>
+			<UniqueFileName>Content\Textures\Test2\LayeredRock_Normal.png</UniqueFileName>
 			<bSrgb>0</bSrgb>
 		</item>
 		<item>
@@ -247,15 +275,19 @@
 			<bSrgb>0</bSrgb>
 		</item>
 		<item>
+			<UniqueFileName>Content\Textures\Test2\RedBricks_Normal.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
+		</item>
+		<item>
+			<UniqueFileName>Content\Textures\Test2\RedBricks_Orm.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
+		</item>
+		<item>
 			<UniqueFileName>Content\Textures\Test2\RustedIron2_Albedo.png</UniqueFileName>
 			<bSrgb>1</bSrgb>
 		</item>
 		<item>
 			<UniqueFileName>Content\Textures\Test2\RustedIron2_Normal.png</UniqueFileName>
-			<bSrgb>0</bSrgb>
-		</item>
-		<item>
-			<UniqueFileName>Content\Textures\Test3\BloodyFloor_Normal.png</UniqueFileName>
 			<bSrgb>0</bSrgb>
 		</item>
 		<item>
@@ -265,6 +297,26 @@
 		<item>
 			<UniqueFileName>Content\Textures\Test2\SlateCliffRock_Albedo.png</UniqueFileName>
 			<bSrgb>1</bSrgb>
+		</item>
+		<item>
+			<UniqueFileName>Content\Textures\Test2\SlateCliffRock_Normal.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
+		</item>
+		<item>
+			<UniqueFileName>Content\Textures\Test3\BeechFloor_Albedo.png</UniqueFileName>
+			<bSrgb>1</bSrgb>
+		</item>
+		<item>
+			<UniqueFileName>Content\Textures\Test3\BeechFloor_Normal.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
+		</item>
+		<item>
+			<UniqueFileName>Content\Textures\Test3\BloodyFloor_Albedo.png</UniqueFileName>
+			<bSrgb>1</bSrgb>
+		</item>
+		<item>
+			<UniqueFileName>Content\Textures\Test3\BloodyFloor_Normal.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
 		</item>
 		<item>
 			<UniqueFileName>Content\Textures\Test3\BloodyFloor_Orm.png</UniqueFileName>
@@ -311,8 +363,8 @@
 			<bSrgb>0</bSrgb>
 		</item>
 		<item>
-			<UniqueFileName>Content\Textures\Test3\WetGround_Albedo.png</UniqueFileName>
-			<bSrgb>1</bSrgb>
+			<UniqueFileName>Content\Textures\Test3\WetGround_Alebdo.png</UniqueFileName>
+			<bSrgb>0</bSrgb>
 		</item>
 		<item>
 			<UniqueFileName>Content\Textures\Test3\WetGround_Normal.png</UniqueFileName>
@@ -347,10 +399,6 @@
 			<bSrgb>0</bSrgb>
 		</item>
 		<item>
-			<UniqueFileName>Resource\Textures\IBL_BRDF_LUT.png</UniqueFileName>
-			<bSrgb>0</bSrgb>
-		</item>
-		<item>
 			<UniqueFileName>Resource\Textures\BlueNoise.png</UniqueFileName>
 			<bSrgb>0</bSrgb>
 		</item>
@@ -360,78 +408,14 @@
 		</item>
 	</mTextureInfo>
 	<mSceneObjectInfo class_id="3" tracking_level="0" version="0">
-		<count>6</count>
+		<count>8</count>
 		<item_version>0</item_version>
 		<item class_id="4" tracking_level="0" version="0">
-			<UniqueName>Floor</UniqueName>
+			<UniqueName>MatBall_2</UniqueName>
 			<OverrideMaterialUniqueName class_id="5" tracking_level="0" version="0">
-				<count>1</count>
+				<count>2</count>
 				<item_version>0</item_version>
 				<item class_id="6" tracking_level="0" version="0">
-					<str1>Grid</str1>
-					<str2>Content\Textures\Test3\DirtGround.gmat</str2>
-				</item>
-			</OverrideMaterialUniqueName>
-			<MeshUniqueName>Grid</MeshUniqueName>
-			<Location>
-				<count>3</count>
-				<item>0.000000000e+00</item>
-				<item>-2.000000000e+01</item>
-				<item>0.000000000e+00</item>
-			</Location>
-			<Rotation>
-				<count>3</count>
-				<item>0.000000000e+00</item>
-				<item>0.000000000e+00</item>
-				<item>0.000000000e+00</item>
-			</Rotation>
-			<Scale>
-				<count>3</count>
-				<item>1.000000000e+02</item>
-				<item>1.000000000e+02</item>
-				<item>1.000000000e+02</item>
-			</Scale>
-		</item>
-		<item>
-			<UniqueName>MatBall_1</UniqueName>
-			<OverrideMaterialUniqueName>
-				<count>2</count>
-				<item_version>0</item_version>
-				<item>
-					<str1>Material_1</str1>
-					<str2>Content\Material\GreasyPan.gmat</str2>
-				</item>
-				<item>
-					<str1>Material_2</str1>
-					<str2>Content\Material\FloorTile.gmat</str2>
-				</item>
-			</OverrideMaterialUniqueName>
-			<MeshUniqueName>Content\Models\MatBall.fbx</MeshUniqueName>
-			<Location>
-				<count>3</count>
-				<item>8.000000000e+02</item>
-				<item>-2.000000000e+01</item>
-				<item>0.000000000e+00</item>
-			</Location>
-			<Rotation>
-				<count>3</count>
-				<item>0.000000000e+00</item>
-				<item>0.000000000e+00</item>
-				<item>0.000000000e+00</item>
-			</Rotation>
-			<Scale>
-				<count>3</count>
-				<item>5.000000000e+00</item>
-				<item>5.000000000e+00</item>
-				<item>5.000000000e+00</item>
-			</Scale>
-		</item>
-		<item>
-			<UniqueName>MatBall_2</UniqueName>
-			<OverrideMaterialUniqueName>
-				<count>2</count>
-				<item_version>0</item_version>
-				<item>
 					<str1>Material_1</str1>
 					<str2>Content\Material\GoldScuffed.gmat</str2>
 				</item>
@@ -549,14 +533,134 @@
 			</Rotation>
 			<Scale>
 				<count>3</count>
-				<item>9.999358368e+01</item>
-				<item>9.999358368e+01</item>
+				<item>9.997392273e+01</item>
+				<item>9.997392273e+01</item>
 				<item>1.000000000e+02</item>
+			</Scale>
+		</item>
+		<item>
+			<UniqueName>Floor</UniqueName>
+			<OverrideMaterialUniqueName>
+				<count>1</count>
+				<item_version>0</item_version>
+				<item>
+					<str1>Grid</str1>
+					<str2>Content\Textures\Test3\DirtGround.gmat</str2>
+				</item>
+			</OverrideMaterialUniqueName>
+			<MeshUniqueName>Grid</MeshUniqueName>
+			<Location>
+				<count>3</count>
+				<item>0.000000000e+00</item>
+				<item>-2.000000000e+01</item>
+				<item>0.000000000e+00</item>
+			</Location>
+			<Rotation>
+				<count>3</count>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+			</Rotation>
+			<Scale>
+				<count>3</count>
+				<item>1.000000000e+02</item>
+				<item>1.000000000e+02</item>
+				<item>1.000000000e+02</item>
+			</Scale>
+		</item>
+		<item>
+			<UniqueName>MatBall_1</UniqueName>
+			<OverrideMaterialUniqueName>
+				<count>2</count>
+				<item_version>0</item_version>
+				<item>
+					<str1>Material_1</str1>
+					<str2>Content\Material\GreasyPan.gmat</str2>
+				</item>
+				<item>
+					<str1>Material_2</str1>
+					<str2>Content\Material\FloorTile.gmat</str2>
+				</item>
+			</OverrideMaterialUniqueName>
+			<MeshUniqueName>Content\Models\MatBall.fbx</MeshUniqueName>
+			<Location>
+				<count>3</count>
+				<item>8.000000000e+02</item>
+				<item>-2.000000000e+01</item>
+				<item>0.000000000e+00</item>
+			</Location>
+			<Rotation>
+				<count>3</count>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+			</Rotation>
+			<Scale>
+				<count>3</count>
+				<item>5.000000000e+00</item>
+				<item>5.000000000e+00</item>
+				<item>5.000000000e+00</item>
+			</Scale>
+		</item>
+		<item>
+			<UniqueName>NewSceneObject</UniqueName>
+			<OverrideMaterialUniqueName>
+				<count>0</count>
+				<item_version>0</item_version>
+			</OverrideMaterialUniqueName>
+			<MeshUniqueName>Content\Models\Cerberus.fbx</MeshUniqueName>
+			<Location>
+				<count>3</count>
+				<item>0.000000000e+00</item>
+				<item>2.877406006e+02</item>
+				<item>8.424277344e+02</item>
+			</Location>
+			<Rotation>
+				<count>3</count>
+				<item>0.000000000e+00</item>
+				<item>-0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+			</Rotation>
+			<Scale>
+				<count>3</count>
+				<item>5.802799702e+00</item>
+				<item>5.802799702e+00</item>
+				<item>5.802799702e+00</item>
+			</Scale>
+		</item>
+		<item>
+			<UniqueName>NewSceneObject_1</UniqueName>
+			<OverrideMaterialUniqueName>
+				<count>1</count>
+				<item_version>0</item_version>
+				<item>
+					<str1>lambert1</str1>
+					<str2>Content\Models\Helmet\Helmet.gmat</str2>
+				</item>
+			</OverrideMaterialUniqueName>
+			<MeshUniqueName>Content\Models\Helmet\Helmet.fbx</MeshUniqueName>
+			<Location>
+				<count>3</count>
+				<item>-9.573063965e+02</item>
+				<item>-3.237501526e+01</item>
+				<item>1.018057739e+03</item>
+			</Location>
+			<Rotation>
+				<count>3</count>
+				<item>0.000000000e+00</item>
+				<item>-0.000000000e+00</item>
+				<item>0.000000000e+00</item>
+			</Rotation>
+			<Scale>
+				<count>3</count>
+				<item>4.309999943e+00</item>
+				<item>4.309999943e+00</item>
+				<item>4.309999943e+00</item>
 			</Scale>
 		</item>
 	</mSceneObjectInfo>
 	<mMeshInfo class_id="7" tracking_level="0" version="0">
-		<count>17</count>
+		<count>18</count>
 		<item_version>0</item_version>
 		<item class_id="8" tracking_level="0" version="0">
 			<MeshUniqueName>Box</MeshUniqueName>
@@ -705,6 +809,23 @@
 				</item>
 			</MaterialUniqueName>
 			<SdfResolution>64</SdfResolution>
+			<Sdf>
+				<count>1</count>
+				<item_version>0</item_version>
+				<item>-1.000000000e+00</item>
+			</Sdf>
+		</item>
+		<item>
+			<MeshUniqueName>Content\Models\Fireplace.FBX</MeshUniqueName>
+			<MaterialUniqueName>
+				<count>1</count>
+				<item_version>0</item_version>
+				<item>
+					<str1>Inst_Fireplace_01</str1>
+					<str2>Default</str2>
+				</item>
+			</MaterialUniqueName>
+			<SdfResolution>32</SdfResolution>
 			<Sdf>
 				<count>1</count>
 				<item_version>0</item_version>

@@ -919,7 +919,7 @@ void GCore::LoadSceneObjects()
 
 	// Modified by Ssi
 	// 从文件中导入一个透明对象
-	int transparentObjFlag = 0;
+	int transparentObjFlag = 2;
 
 	// 从文件中导入场景对象
 	// Load scene objects from file.
